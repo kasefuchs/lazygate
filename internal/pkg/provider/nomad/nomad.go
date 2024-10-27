@@ -2,7 +2,6 @@ package nomad
 
 import (
 	"fmt"
-
 	"github.com/hashicorp/nomad/api"
 	"github.com/kasefuchs/lazygate/internal/pkg/config"
 	"github.com/kasefuchs/lazygate/internal/pkg/provider"
@@ -40,10 +39,8 @@ func (p *Provider) Init() error {
 	return err
 }
 
-func (p *Provider) getAllocation(srv proxy.RegisteredServer) (*allocation, error) {
-	sn := srv.ServerInfo().Name()
-
-	jobStubs, _, err := p.client.Jobs().List(nil)
+func (p *Provider) getAllocation(srv *proxy.RegisteredServer) (*allocation, error) {
+	jobStubs, _, err := p.client.Jobs().ListOptions(nil, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -57,11 +54,11 @@ func (p *Provider) getAllocation(srv proxy.RegisteredServer) (*allocation, error
 		for _, taskGroup := range job.TaskGroups {
 			for _, service := range taskGroup.Services {
 				cfg, err := config.ParseTags(service.Tags)
-				if err != nil {
+				if err != nil || cfg.Server.Name == "" {
 					continue
 				}
 
-				if cfg.Server.Name == sn {
+				if srv == nil || cfg.Server.Name == (*srv).ServerInfo().Name() {
 					return &allocation{
 						job:       job,
 						taskGroup: taskGroup,
@@ -74,7 +71,7 @@ func (p *Provider) getAllocation(srv proxy.RegisteredServer) (*allocation, error
 	return nil, fmt.Errorf("allocation not found")
 }
 
-func (p *Provider) scale(srv proxy.RegisteredServer, count *int64) error {
+func (p *Provider) scale(srv *proxy.RegisteredServer, count *int64) error {
 	alloc, err := p.getAllocation(srv)
 	if err != nil {
 		return err
@@ -99,9 +96,13 @@ func (p *Provider) scale(srv proxy.RegisteredServer, count *int64) error {
 }
 
 func (p *Provider) Pause(srv proxy.RegisteredServer) error {
-	return p.scale(srv, &countDown)
+	return p.scale(&srv, &countDown)
 }
 
 func (p *Provider) Resume(srv proxy.RegisteredServer) error {
-	return p.scale(srv, &countUp)
+	return p.scale(&srv, &countUp)
+}
+
+func (p *Provider) ResumeAny() error {
+	return p.scale(nil, &countUp)
 }

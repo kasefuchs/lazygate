@@ -8,4 +8,5 @@ type Provider interface {
 	Init() error                         // Init initializes the provider.
 	Pause(proxy.RegisteredServer) error  // Pause pauses server.
 	Resume(proxy.RegisteredServer) error // Resume resumes server.
+	ResumeAny() error                    // ResumeAny resumes the operation of the first found server.
 }

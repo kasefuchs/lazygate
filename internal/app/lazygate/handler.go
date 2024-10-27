@@ -41,3 +41,19 @@ func (p *Plugin) onConnectionErrorEvent(event *proxy.ConnectionErrorEvent) {
 
 	plr.Disconnect(resumeInProgress)
 }
+
+func (p *Plugin) onPlayerChooseInitialServerEvent(event *proxy.PlayerChooseInitialServerEvent) {
+	plr := event.Player()
+
+	if event.InitialServer() == nil {
+		p.log.Info("resuming first server")
+		if err := p.provider.ResumeAny(); err != nil {
+			plr.Disconnect(resumeFailed)
+			p.log.Error(err, "failed to resume server")
+
+			return
+		}
+
+		plr.Disconnect(resumeInProgress)
+	}
+}
