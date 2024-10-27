@@ -2,6 +2,7 @@ package nomad
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/nomad/api"
 	"github.com/kasefuchs/lazygate/internal/pkg/config"
 	"github.com/kasefuchs/lazygate/internal/pkg/provider"
@@ -95,14 +96,10 @@ func (p *Provider) scale(srv *proxy.RegisteredServer, count *int64) error {
 	return nil
 }
 
-func (p *Provider) Pause(srv proxy.RegisteredServer) error {
-	return p.scale(&srv, &countDown)
+func (p *Provider) Pause(srv *proxy.RegisteredServer) error {
+	return p.scale(srv, &countDown)
 }
 
-func (p *Provider) Resume(srv proxy.RegisteredServer) error {
-	return p.scale(&srv, &countUp)
-}
-
-func (p *Provider) ResumeAny() error {
-	return p.scale(nil, &countUp)
+func (p *Provider) Resume(srv *proxy.RegisteredServer) error {
+	return p.scale(srv, &countUp)
 }
