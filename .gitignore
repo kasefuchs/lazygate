@@ -1,0 +1,22 @@
+# ---> Go
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# ---> ProtoBuf
+# Generated files
+*.pb.go
+
+# ---> Custom
+# Integrated development environment
+.idea/
+*.iml
+.vs/
+.vscode/
+
+# Mac OS files
+.DS_Store/
