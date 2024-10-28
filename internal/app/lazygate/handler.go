@@ -26,34 +26,23 @@ func (p *Plugin) onDisconnectEvent(event *proxy.DisconnectEvent) {
 		}
 	}
 }
-
-func (p *Plugin) onConnectionErrorEvent(event *proxy.ConnectionErrorEvent) {
-	srv := event.Server()
+func (p *Plugin) onPlayerChooseInitialServerEvent(event *proxy.PlayerChooseInitialServerEvent) {
+	srv := event.InitialServer()
 	plr := event.Player()
 
-	p.log.Info("resuming server", "name", srv.ServerInfo().Name())
+	if srv != nil {
+		req := plr.CreateConnectionRequest(srv)
+		if _, err := req.Connect(plr.Context()); err == nil {
+			return
+		}
+	}
+
+	p.log.Info("resuming server")
 	if err := p.provider.Resume(&srv); err != nil {
 		plr.Disconnect(resumeFailed)
 		p.log.Error(err, "failed to resume server")
 
 		return
 	}
-
 	plr.Disconnect(resumeInProgress)
-}
-
-func (p *Plugin) onPlayerChooseInitialServerEvent(event *proxy.PlayerChooseInitialServerEvent) {
-	plr := event.Player()
-
-	if event.InitialServer() == nil {
-		p.log.Info("resuming random server")
-		if err := p.provider.Resume(nil); err != nil {
-			plr.Disconnect(resumeFailed)
-			p.log.Error(err, "failed to resume random server")
-
-			return
-		}
-
-		plr.Disconnect(resumeInProgress)
-	}
 }

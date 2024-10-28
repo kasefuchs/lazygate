@@ -44,7 +44,6 @@ func (p *Plugin) initHandlers() error {
 	p.eventMgr = p.proxy.Event()
 
 	event.Subscribe(p.eventMgr, math.MaxInt, p.onDisconnectEvent)
-	event.Subscribe(p.eventMgr, math.MaxInt, p.onConnectionErrorEvent)
 	event.Subscribe(p.eventMgr, math.MaxInt, p.onPlayerChooseInitialServerEvent)
 
 	p.log.Info("subscribed plugin handlers")

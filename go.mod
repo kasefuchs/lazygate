@@ -6,6 +6,7 @@ require (
 	github.com/go-logr/logr v1.4.2
 	github.com/hashicorp/nomad/api v0.0.0-20241024124544-a1ede9765ca3
 	github.com/robinbraemer/event v0.0.1
+	github.com/traefik/paerser v0.2.1
 	go.minekube.com/common v0.0.5
 	go.minekube.com/gate v0.41.2
 )
@@ -52,7 +53,6 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.19.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/traefik/paerser v0.2.1 // indirect
 	github.com/urfave/cli/v2 v2.27.5 // indirect
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	github.com/zyedidia/generic v1.2.1 // indirect
@@ -72,5 +72,3 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace go.minekube.com/gate v0.41.2 => github.com/kasefuchs/gate v0.0.0-20241025182116-6f30b52438d2
