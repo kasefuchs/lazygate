@@ -26,6 +26,7 @@ func (p *Plugin) onDisconnectEvent(event *proxy.DisconnectEvent) {
 		}
 	}
 }
+
 func (p *Plugin) onPlayerChooseInitialServerEvent(event *proxy.PlayerChooseInitialServerEvent) {
 	srv := event.InitialServer()
 	plr := event.Player()

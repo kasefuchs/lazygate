@@ -5,8 +5,8 @@ import (
 	"math"
 
 	"github.com/go-logr/logr"
+	"github.com/kasefuchs/lazygate/internal/pkg/config/static"
 	"github.com/kasefuchs/lazygate/internal/pkg/provider"
-	"github.com/kasefuchs/lazygate/internal/pkg/provider/nomad"
 	"github.com/robinbraemer/event"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
@@ -16,6 +16,7 @@ type Plugin struct {
 	ctx      context.Context   // Plugin context.
 	log      logr.Logger       // Plugin logger.
 	proxy    *proxy.Proxy      // Gate proxy instance.
+	config   *static.Config    // Static config of plugin.
 	eventMgr event.Manager     // Plugin proxy's event manager.
 	provider provider.Provider // Runner provider.
 }
@@ -28,14 +29,31 @@ func NewPlugin(ctx context.Context, proxy *proxy.Proxy) *Plugin {
 	}
 }
 
+// loadConfig loads static config.
+func (p *Plugin) loadConfig() error {
+	var err error
+	p.config, err = static.ParseEnv()
+	if err != nil {
+		return err
+	}
+
+	p.log.Info("loaded plugin configuration")
+	return nil
+}
+
 // initProvider initializes server provider.
 func (p *Plugin) initProvider() error {
-	p.provider = &nomad.Provider{}
+	var err error
+	p.provider, err = provider.NewProvider(p.config.Provider)
+	if err != nil {
+		return err
+	}
+
 	if err := p.provider.Init(); err != nil {
 		return err
 	}
 
-	p.log.Info("initialized provider", "name", p.provider.Name())
+	p.log.Info("initialized provider", "name", p.config.Provider)
 	return nil
 }
 
@@ -54,6 +72,9 @@ func (p *Plugin) initHandlers() error {
 func (p *Plugin) Init() error {
 	p.log = logr.FromContextOrDiscard(p.ctx)
 
+	if err := p.loadConfig(); err != nil {
+		return err
+	}
 	if err := p.initProvider(); err != nil {
 		return err
 	}
