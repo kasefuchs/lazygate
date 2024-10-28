@@ -1,12 +1,12 @@
 package dynamic
 
 import (
-	"github.com/kasefuchs/lazygate/internal/pkg/util"
+	"github.com/kasefuchs/lazygate/pkg/utils"
 	"github.com/traefik/paerser/parser"
 )
 
 // Root label name.
-const rootName = "lazygate"
+const rootName = "plugin"
 
 // ParseLabels parses labels to dynamic config.
 func ParseLabels(labels map[string]string) (*Config, error) {
@@ -22,7 +22,7 @@ func ParseLabels(labels map[string]string) (*Config, error) {
 
 // ParseTags parses tags to dynamic config.
 func ParseTags(tags []string) (*Config, error) {
-	labels := util.TagsToLabels(tags)
+	labels := utils.TagsToLabels(tags)
 
 	return ParseLabels(labels)
 }

@@ -1,4 +1,4 @@
-package lazygate
+package plugin
 
 import (
 	"go.minekube.com/common/minecraft/component"

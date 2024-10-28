@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/nomad/api"
-	"github.com/kasefuchs/lazygate/internal/pkg/config/dynamic"
+	"github.com/kasefuchs/lazygate/pkg/config/dynamic"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 

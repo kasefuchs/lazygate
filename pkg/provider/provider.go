@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/kasefuchs/lazygate/internal/pkg/provider/docker"
-	"github.com/kasefuchs/lazygate/internal/pkg/provider/nomad"
+	"github.com/kasefuchs/lazygate/pkg/provider/docker"
+	"github.com/kasefuchs/lazygate/pkg/provider/nomad"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 

@@ -6,7 +6,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/kasefuchs/lazygate/internal/pkg/config/dynamic"
+	"github.com/kasefuchs/lazygate/pkg/config/dynamic"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 

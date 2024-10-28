@@ -1,15 +1,18 @@
-package lazygate
+package plugin
 
 import (
 	"context"
 	"math"
 
 	"github.com/go-logr/logr"
-	"github.com/kasefuchs/lazygate/internal/pkg/config/static"
-	"github.com/kasefuchs/lazygate/internal/pkg/provider"
+	"github.com/kasefuchs/lazygate/pkg/config/static"
+	"github.com/kasefuchs/lazygate/pkg/provider"
 	"github.com/robinbraemer/event"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
+
+// Name represents plugin name.
+const Name = "LazyGate"
 
 // Plugin is the LazyGate Gate plugin.
 type Plugin struct {
@@ -21,11 +24,21 @@ type Plugin struct {
 	provider provider.Provider // Runner provider.
 }
 
-// NewPlugin creates new instance of LazyGate plugin.
+// NewPlugin creates new instance of plugin.
 func NewPlugin(ctx context.Context, proxy *proxy.Proxy) *Plugin {
 	return &Plugin{
 		ctx:   ctx,
 		proxy: proxy,
+	}
+}
+
+// NewProxyPlugin creates new instance of Gate Proxy plugin.
+func NewProxyPlugin() proxy.Plugin {
+	return proxy.Plugin{
+		Name: Name,
+		Init: func(ctx context.Context, proxy *proxy.Proxy) error {
+			return NewPlugin(ctx, proxy).Init()
+		},
 	}
 }
 
@@ -70,7 +83,7 @@ func (p *Plugin) initHandlers() error {
 
 // Init initializes plugin functionality.
 func (p *Plugin) Init() error {
-	p.log = logr.FromContextOrDiscard(p.ctx)
+	p.log = logr.FromContextOrDiscard(p.ctx).WithName(Name)
 
 	if err := p.loadConfig(); err != nil {
 		return err

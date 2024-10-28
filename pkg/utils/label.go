@@ -1,8 +1,6 @@
-package util
+package utils
 
-import (
-	"strings"
-)
+import "strings"
 
 // TagsToLabels converts tags to labels.
 func TagsToLabels(tags []string) map[string]string {
