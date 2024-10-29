@@ -2,6 +2,7 @@ package docker
 
 import (
 	"github.com/docker/docker/client"
+	"github.com/go-logr/logr"
 	"github.com/kasefuchs/lazygate/pkg/provider"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
@@ -10,10 +11,11 @@ var _ provider.Provider = (*Provider)(nil)
 
 // Provider based on Docker API.
 type Provider struct {
+	log    logr.Logger    // Provider logger.
 	client *client.Client // Docker API client.
 }
 
-func (p *Provider) Init(opt provider.InitOptions) error {
+func (p *Provider) initClient() error {
 	var err error
 
 	p.client, err = client.NewClientWithOpts(client.FromEnv)
@@ -21,6 +23,17 @@ func (p *Provider) Init(opt provider.InitOptions) error {
 		return err
 	}
 
+	return nil
+}
+
+func (p *Provider) Init(opt *provider.InitOptions) error {
+	p.log = opt.Log
+
+	if err := p.initClient(); err != nil {
+		return err
+	}
+
+	p.log.Info("initialized provider")
 	return nil
 }
 

@@ -1,4 +1,4 @@
-package dynamic
+package config
 
 // Config represents specific server config.
 type Config struct {

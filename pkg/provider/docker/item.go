@@ -4,15 +4,16 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/kasefuchs/lazygate/pkg/config"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/kasefuchs/lazygate/pkg/config/dynamic"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
 // Allocation internal data in Docker context.
 type item struct {
-	config    *dynamic.Config  // Server dynamic configuration.
+	config    *config.Config   // Server dynamic configuration.
 	container *types.Container // Server container.
 }
 
@@ -25,7 +26,7 @@ func (p *Provider) itemList() ([]*item, error) {
 	}
 
 	for _, cnt := range containerList {
-		cfg, err := dynamic.ParseLabels(cnt.Labels)
+		cfg, err := config.ParseLabels(cnt.Labels)
 		if err != nil {
 			continue
 		}
@@ -45,11 +46,11 @@ func (p *Provider) itemGet(srv proxy.RegisteredServer) (*item, error) {
 		return nil, err
 	}
 
-	for _, i := range items {
-		if i.config.Server == srv.ServerInfo().Name() {
-			return i, nil
+	for _, it := range items {
+		if it.config.Server == srv.ServerInfo().Name() {
+			return it, nil
 		}
 	}
 
-	return nil, fmt.Errorf("container not found")
+	return nil, fmt.Errorf("item not found")
 }
