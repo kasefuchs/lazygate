@@ -3,6 +3,7 @@ package plugin
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/kasefuchs/lazygate/pkg/provider"
 	"github.com/kasefuchs/lazygate/pkg/provider/docker"
@@ -21,7 +22,7 @@ type Options struct {
 func DefaultProviderSelector() (provider.Provider, error) {
 	name := os.Getenv("LAZYGATE_PROVIDER")
 
-	switch name {
+	switch strings.TrimSpace(name) {
 	case "nomad":
 		return &nomad.Provider{}, nil
 	case "docker":

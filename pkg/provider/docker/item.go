@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/kasefuchs/lazygate/pkg/config"
-
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/kasefuchs/lazygate/pkg/config"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
