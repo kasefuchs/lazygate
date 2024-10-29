@@ -1,0 +1,39 @@
+services:
+  gate:
+    image: ghcr.io/kasefuchs/lazygate:latest
+    build:
+      context: ..
+      dockerfile: build/Dockerfile
+    ports:
+      - "25565:25565"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:rw"
+      - "../configs/gate.docker.yml:/config.yml:ro"
+    networks:
+      - gate
+    env_file:
+      - ../configs/gate.docker.env
+
+  minecraft-server:
+    image: itzg/minecraft-server:latest
+    ports:
+      - "30000:30000"
+    labels:
+      lazygate.server: seiko
+    volumes:
+      - "minecraft-server:/data"
+    networks:
+      - gate
+    environment:
+      EULA: true
+      TYPE: limbo
+      LIMBO_BUILD: 46
+      SERVER_PORT: 30000
+      CUSTOM_SERVER_PROPERTIES: |
+        bungeecord=true
+
+volumes:
+  minecraft-server: {}
+
+networks:
+  gate: {}
