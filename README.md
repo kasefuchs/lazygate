@@ -15,11 +15,13 @@ and wakes it up when players connect.
 ### Installing
 
 Add the `lazygate` module to your project:
+
 ```sh
 go get github.com/kasefuchs/lazygate
 ```
 
 Include the plugin in your list of proxy plugins:
+
 ```go
 package main
 
@@ -39,6 +41,7 @@ func main() {
 ### Configuring
 
 Configure the plugin using environment variables:
+
 ```sh
 # Provider to use. Currently available nomad & docker.
 LAZYGATE_PROVIDER="nomad"
@@ -49,6 +52,7 @@ LAZYGATE_PROVIDER="nomad"
 LazyGate matches registered Gate servers with provider's allocations using labels:
 
 **Docker Compose:**
+
 ```yaml
 services:
   minecraft-server1:
@@ -57,6 +61,7 @@ services:
 ```
 
 **Gate config:**
+
 ```yaml
 ---
 config:

@@ -1,6 +1,8 @@
 package plugin
 
 import (
+	"math/rand"
+
 	"go.minekube.com/common/minecraft/component"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
@@ -19,9 +21,11 @@ func (p *Plugin) onDisconnectEvent(event *proxy.DisconnectEvent) {
 		srv := conn.Server()
 
 		if srv.Players().Len() == 0 {
-			p.log.Info("pausing server", "name", srv.ServerInfo().Name())
-			if err := p.provider.Pause(&srv); err != nil {
-				p.log.Error(err, "failed to pause server")
+			if alloc, err := p.provider.AllocationGet(srv); err == nil {
+				p.log.Info("stopping server", "name", srv.ServerInfo().Name())
+				if err := alloc.Stop(); err != nil {
+					p.log.Error(err, "failed to stop server")
+				}
 			}
 		}
 	}
@@ -36,14 +40,33 @@ func (p *Plugin) onPlayerChooseInitialServerEvent(event *proxy.PlayerChooseIniti
 		if _, err := req.Connect(plr.Context()); err == nil {
 			return
 		}
+
+		if alloc, err := p.provider.AllocationGet(srv); err == nil {
+			if err := alloc.Start(); err != nil {
+				plr.Disconnect(resumeFailed)
+				p.log.Error(err, "failed to resume server")
+
+				return
+			}
+
+			plr.Disconnect(resumeInProgress)
+		}
+
+		return
 	}
 
-	p.log.Info("resuming server")
-	if err := p.provider.Resume(&srv); err != nil {
+	allocs, err := p.provider.AllocationList()
+	if err != nil || len(allocs) == 0 {
+		return
+	}
+
+	alloc := allocs[rand.Intn(len(allocs))]
+	if err := alloc.Start(); err != nil {
 		plr.Disconnect(resumeFailed)
 		p.log.Error(err, "failed to resume server")
 
 		return
 	}
+
 	plr.Disconnect(resumeInProgress)
 }

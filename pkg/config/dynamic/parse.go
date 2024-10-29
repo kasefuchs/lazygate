@@ -1,19 +1,26 @@
 package dynamic
 
 import (
+	"github.com/go-playground/validator/v10"
 	"github.com/kasefuchs/lazygate/pkg/utils"
 	"github.com/traefik/paerser/parser"
 )
 
 // Root label name.
-const rootName = "plugin"
+const rootName = "lazygate"
+
+// Dynamic config validator.
+var validate = validator.New()
 
 // ParseLabels parses labels to dynamic config.
 func ParseLabels(labels map[string]string) (*Config, error) {
 	cfg := &Config{}
 
-	err := parser.Decode(labels, cfg, rootName, rootName)
-	if err != nil {
+	if err := parser.Decode(labels, cfg, rootName, rootName); err != nil {
+		return nil, err
+	}
+
+	if err := validate.Struct(cfg); err != nil {
 		return nil, err
 	}
 

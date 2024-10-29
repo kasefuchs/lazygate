@@ -2,17 +2,21 @@ package plugin
 
 import (
 	"context"
+	"fmt"
 	"math"
+
+	"github.com/kasefuchs/lazygate/pkg/provider/docker"
 
 	"github.com/go-logr/logr"
 	"github.com/kasefuchs/lazygate/pkg/config/static"
 	"github.com/kasefuchs/lazygate/pkg/provider"
+	"github.com/kasefuchs/lazygate/pkg/provider/nomad"
 	"github.com/robinbraemer/event"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
 // Name represents plugin name.
-const Name = "LazyGate"
+const Name = "lazygate"
 
 // Plugin is the LazyGate Gate plugin.
 type Plugin struct {
@@ -56,13 +60,19 @@ func (p *Plugin) loadConfig() error {
 
 // initProvider initializes server provider.
 func (p *Plugin) initProvider() error {
-	var err error
-	p.provider, err = provider.NewProvider(p.config.Provider)
-	if err != nil {
-		return err
+	switch p.config.Provider {
+	case "nomad":
+		p.provider = &nomad.Provider{}
+	case "docker":
+		p.provider = &docker.Provider{}
+	case "":
+		return fmt.Errorf("empty provider")
+	default:
+		return fmt.Errorf("unknown provider: %s", p.config.Provider)
 	}
 
-	if err := p.provider.Init(); err != nil {
+	opt := provider.InitOptions{}
+	if err := p.provider.Init(opt); err != nil {
 		return err
 	}
 
