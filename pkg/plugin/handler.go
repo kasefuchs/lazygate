@@ -3,17 +3,9 @@ package plugin
 import (
 	"math/rand"
 
-	"go.minekube.com/common/minecraft/component"
+	"go.minekube.com/gate/pkg/edition/java/proto/version"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
-)
-
-var (
-	resumeInProgress = &component.Text{
-		Content: "Server is currently starting up!",
-	}
-	resumeFailed = &component.Text{
-		Content: "Server is unable to resume, please try again later.",
-	}
+	"go.minekube.com/gate/pkg/util/componentutil"
 )
 
 func (p *Plugin) onDisconnectEvent(event *proxy.DisconnectEvent) {
@@ -42,14 +34,21 @@ func (p *Plugin) onPlayerChooseInitialServerEvent(event *proxy.PlayerChooseIniti
 		}
 
 		if alloc, err := p.provider.AllocationGet(srv); err == nil {
+			cfg := alloc.Config()
 			if err := alloc.Start(); err != nil {
-				plr.Disconnect(resumeFailed)
 				p.log.Error(err, "failed to resume server")
+				if textComponent, err := componentutil.ParseTextComponent(version.MinimumVersion.Protocol, cfg.DisconnectReasons.ActionFailed); err == nil {
+					plr.Disconnect(textComponent)
+				}
 
 				return
 			}
 
-			plr.Disconnect(resumeInProgress)
+			if textComponent, err := componentutil.ParseTextComponent(version.MinimumVersion.Protocol, cfg.DisconnectReasons.Starting); err == nil {
+				plr.Disconnect(textComponent)
+			}
+
+			return
 		}
 
 		return
@@ -61,12 +60,17 @@ func (p *Plugin) onPlayerChooseInitialServerEvent(event *proxy.PlayerChooseIniti
 	}
 
 	alloc := allocs[rand.Intn(len(allocs))]
+	cfg := alloc.Config()
 	if err := alloc.Start(); err != nil {
-		plr.Disconnect(resumeFailed)
 		p.log.Error(err, "failed to resume server")
+		if textComponent, err := componentutil.ParseTextComponent(version.MinimumVersion.Protocol, cfg.DisconnectReasons.ActionFailed); err == nil {
+			plr.Disconnect(textComponent)
+		}
 
 		return
 	}
 
-	plr.Disconnect(resumeInProgress)
+	if textComponent, err := componentutil.ParseTextComponent(version.MinimumVersion.Protocol, cfg.DisconnectReasons.Starting); err == nil {
+		plr.Disconnect(textComponent)
+	}
 }

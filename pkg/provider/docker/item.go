@@ -6,14 +6,14 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/kasefuchs/lazygate/pkg/config"
+	"github.com/kasefuchs/lazygate/pkg/config/allocation"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
 // Allocation internal data in Docker context.
 type item struct {
-	config    *config.Config   // Server dynamic configuration.
-	container *types.Container // Server container.
+	config    *allocation.Config // Server dynamic configuration.
+	container *types.Container   // Server container.
 }
 
 func (p *Provider) itemList() ([]*item, error) {
@@ -25,7 +25,7 @@ func (p *Provider) itemList() ([]*item, error) {
 	}
 
 	for _, cnt := range containerList {
-		cfg, err := config.ParseLabels(cnt.Labels)
+		cfg, err := allocation.ParseLabels(cnt.Labels)
 		if err != nil {
 			continue
 		}

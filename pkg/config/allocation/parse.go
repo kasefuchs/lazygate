@@ -1,4 +1,4 @@
-package config
+package allocation
 
 import (
 	"github.com/go-playground/validator/v10"
@@ -14,7 +14,7 @@ var validate = validator.New()
 
 // ParseLabels parses labels to dynamic config.
 func ParseLabels(labels map[string]string) (*Config, error) {
-	cfg := &Config{}
+	cfg := DefaultConfig()
 
 	if err := parser.Decode(labels, cfg, rootName, rootName); err != nil {
 		return nil, err

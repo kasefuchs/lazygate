@@ -5,6 +5,7 @@ import (
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
+	"github.com/kasefuchs/lazygate/pkg/config/allocation"
 	"github.com/kasefuchs/lazygate/pkg/provider"
 )
 
@@ -29,4 +30,8 @@ func (a *Allocation) Stop() error {
 
 func (a *Allocation) Start() error {
 	return a.client.ContainerStart(context.Background(), a.item.container.ID, container.StartOptions{})
+}
+
+func (a *Allocation) Config() *allocation.Config {
+	return a.item.config
 }

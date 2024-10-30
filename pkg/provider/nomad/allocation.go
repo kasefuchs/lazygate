@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/nomad/api"
+	"github.com/kasefuchs/lazygate/pkg/config/allocation"
 	"github.com/kasefuchs/lazygate/pkg/provider"
 )
 
@@ -25,14 +26,6 @@ func NewAllocation(client *api.Client, item *item) *Allocation {
 		client: client,
 		item:   item,
 	}
-}
-
-func (a *Allocation) Stop() error {
-	return a.scale(&scaleStop)
-}
-
-func (a *Allocation) Start() error {
-	return a.scale(&scaleStart)
 }
 
 func (a *Allocation) scale(count *int64) error {
@@ -62,4 +55,16 @@ func (a *Allocation) scale(count *int64) error {
 	}
 
 	return nil
+}
+
+func (a *Allocation) Stop() error {
+	return a.scale(&scaleStop)
+}
+
+func (a *Allocation) Start() error {
+	return a.scale(&scaleStart)
+}
+
+func (a *Allocation) Config() *allocation.Config {
+	return a.item.config
 }

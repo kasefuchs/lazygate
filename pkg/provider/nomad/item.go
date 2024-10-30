@@ -4,16 +4,16 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/nomad/api"
-	"github.com/kasefuchs/lazygate/pkg/config"
+	"github.com/kasefuchs/lazygate/pkg/config/allocation"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
 // Allocation internal data in Nomad context.
 type item struct {
-	job     *api.Job       // Task job
-	group   *api.TaskGroup // Task group
-	config  *config.Config // Server dynamic configuration.
-	service *api.Service   // Task service.
+	job     *api.Job           // Task job
+	group   *api.TaskGroup     // Task group
+	config  *allocation.Config // Server dynamic configuration.
+	service *api.Service       // Task service.
 }
 
 func (p *Provider) itemList() ([]*item, error) {
@@ -32,7 +32,7 @@ func (p *Provider) itemList() ([]*item, error) {
 
 		for _, taskGroup := range job.TaskGroups {
 			for _, service := range taskGroup.Services {
-				cfg, err := config.ParseTags(service.Tags)
+				cfg, err := allocation.ParseTags(service.Tags)
 				if err != nil {
 					continue
 				}
