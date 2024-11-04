@@ -32,6 +32,24 @@ func (a *Allocation) Start() error {
 	return a.client.ContainerStart(context.Background(), a.item.container.ID, container.StartOptions{})
 }
 
-func (a *Allocation) Config() *allocation.Config {
-	return a.item.config
+func (a *Allocation) State() provider.AllocationState {
+	inspect, err := a.client.ContainerInspect(context.Background(), a.item.container.ID)
+	if err != nil {
+		return provider.AllocationStateUnknown
+	}
+
+	if inspect.State.Running {
+		return provider.AllocationStateStarted
+	}
+
+	return provider.AllocationStateStopped
+}
+
+func (a *Allocation) Config() (*allocation.Config, error) {
+	inspect, err := a.client.ContainerInspect(context.Background(), a.item.container.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return allocation.ParseLabels(inspect.Config.Labels)
 }

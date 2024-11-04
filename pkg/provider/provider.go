@@ -1,19 +1,22 @@
 package provider
 
 import (
-	"github.com/go-logr/logr"
+	"context"
+
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
+const LogName = "lazygate.provider"
+
 // InitOptions represents options to pass to provider.
 type InitOptions struct {
-	Log logr.Logger // Provider logger.
+	Ctx context.Context // Plugin context.
 }
 
 // Provider manipulates with registered servers.
 type Provider interface {
 	Init(opts *InitOptions) error // Init initializes the provider.
 
-	AllocationGet(srv proxy.RegisteredServer) (Allocation, error) // GetAllocation returns matching Allocation.
-	AllocationList() ([]Allocation, error)                        // GetAll returns all matching Allocation's.
+	AllocationGet(srv proxy.RegisteredServer) (Allocation, error) // AllocationGet returns matching Allocation.
+	AllocationList() ([]Allocation, error)                        // AllocationList returns all matching Allocation's.
 }

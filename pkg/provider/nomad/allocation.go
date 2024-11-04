@@ -65,6 +65,47 @@ func (a *Allocation) Start() error {
 	return a.scale(&scaleStart)
 }
 
-func (a *Allocation) Config() *allocation.Config {
-	return a.item.config
+func (a *Allocation) State() provider.AllocationState {
+	info, _, err := a.client.Jobs().Info(*a.item.job.ID, nil)
+	if err != nil {
+		return provider.AllocationStateUnknown
+	}
+
+	for _, group := range info.TaskGroups {
+		if group.Name != a.item.group.Name {
+			continue
+		}
+
+		if *group.Count == 0 {
+			return provider.AllocationStateStopped
+		}
+
+		return provider.AllocationStateStarted
+	}
+
+	return provider.AllocationStateUnknown
+}
+
+func (a *Allocation) Config() (*allocation.Config, error) {
+	info, _, err := a.client.Jobs().Info(*a.item.job.ID, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, group := range info.TaskGroups {
+		if group.Name != a.item.group.Name {
+			continue
+		}
+
+		for _, service := range group.Services {
+			cfg, err := allocation.ParseTags(service.Tags)
+			if err != nil {
+				continue
+			}
+
+			return cfg, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no allocation configuration found")
 }

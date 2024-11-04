@@ -6,7 +6,7 @@ require (
 	github.com/docker/docker v27.3.1+incompatible
 	github.com/go-logr/logr v1.4.2
 	github.com/go-playground/validator/v10 v10.22.1
-	github.com/hashicorp/nomad/api v0.0.0-20241028102629-2df473c5612c
+	github.com/hashicorp/nomad/api v0.0.0-20241102025813-4dbcdd103ad3
 	github.com/robinbraemer/event v0.0.1
 	github.com/traefik/paerser v0.2.1
 	go.minekube.com/common v0.0.5
@@ -29,8 +29,8 @@ require (
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/francoispqt/gojay v1.2.13 // indirect
-	github.com/fsnotify/fsnotify v1.7.0 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
+	github.com/fsnotify/fsnotify v1.8.0 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.6 // indirect
 	github.com/gammazero/deque v0.2.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect

@@ -5,21 +5,24 @@ import (
 	"math"
 
 	"github.com/go-logr/logr"
+	"github.com/kasefuchs/lazygate/pkg/monitor"
 	"github.com/kasefuchs/lazygate/pkg/provider"
 	"github.com/robinbraemer/event"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
-// Name represents plugin name.
-const Name = "lazygate"
+const (
+	Name    = "lazygate"        // Name represents plugin name.
+	logName = "lazygate.plugin" // Logger name to log with.
+)
 
 // Plugin is the LazyGate Gate plugin.
 type Plugin struct {
 	ctx      context.Context   // Plugin context.
 	log      logr.Logger       // Plugin logger.
 	proxy    *proxy.Proxy      // Gate proxy instance.
+	monitor  *monitor.Monitor  // Plugin server monitor.
 	options  *Options          // Plugin options.
-	eventMgr event.Manager     // Plugin proxy's event manager.
 	provider provider.Provider // Runner provider.
 }
 
@@ -56,31 +59,40 @@ func (p *Plugin) initProvider() error {
 	}
 
 	opt := &provider.InitOptions{
-		Log: p.log.WithName("provider"),
+		Ctx: p.ctx,
 	}
 
 	return p.provider.Init(opt)
 }
 
-// bindHandlers binds event handlers.
-func (p *Plugin) bindHandlers() error {
-	p.eventMgr = p.proxy.Event()
+// initMonitor initializes server monitor.
+func (p *Plugin) initMonitor() error {
+	p.monitor = monitor.NewMonitor(p.ctx, p.proxy, p.provider)
 
-	event.Subscribe(p.eventMgr, math.MaxInt, p.onDisconnectEvent)
-	event.Subscribe(p.eventMgr, math.MaxInt, p.onPlayerChooseInitialServerEvent)
+	return p.monitor.Init()
+}
 
-	p.log.Info("subscribed handlers")
+func (p *Plugin) initHandlers() error {
+	eventMgr := p.proxy.Event()
+
+	event.Subscribe(eventMgr, math.MaxInt, p.onDisconnectEvent)
+	event.Subscribe(eventMgr, math.MaxInt, p.onServerPreConnectEvent)
+	event.Subscribe(eventMgr, math.MaxInt, p.onServerPostConnectEvent)
+
 	return nil
 }
 
 // Init initializes plugin functionality.
 func (p *Plugin) Init() error {
-	p.log = logr.FromContextOrDiscard(p.ctx).WithName(Name)
+	p.log = logr.FromContextOrDiscard(p.ctx).WithName(logName)
 
 	if err := p.initProvider(); err != nil {
 		return err
 	}
-	if err := p.bindHandlers(); err != nil {
+	if err := p.initMonitor(); err != nil {
+		return err
+	}
+	if err := p.initHandlers(); err != nil {
 		return err
 	}
 

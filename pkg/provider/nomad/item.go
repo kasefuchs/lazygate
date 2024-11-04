@@ -1,19 +1,14 @@
 package nomad
 
 import (
-	"fmt"
-
 	"github.com/hashicorp/nomad/api"
 	"github.com/kasefuchs/lazygate/pkg/config/allocation"
-	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
 // Allocation internal data in Nomad context.
 type item struct {
-	job     *api.Job           // Task job
-	group   *api.TaskGroup     // Task group
-	config  *allocation.Config // Server dynamic configuration.
-	service *api.Service       // Task service.
+	job   *api.Job       // Task job
+	group *api.TaskGroup // Task group
 }
 
 func (p *Provider) itemList() ([]*item, error) {
@@ -32,35 +27,17 @@ func (p *Provider) itemList() ([]*item, error) {
 
 		for _, taskGroup := range job.TaskGroups {
 			for _, service := range taskGroup.Services {
-				cfg, err := allocation.ParseTags(service.Tags)
-				if err != nil {
+				if _, err := allocation.ParseTags(service.Tags); err != nil {
 					continue
 				}
 
 				items = append(items, &item{
-					job:     job,
-					group:   taskGroup,
-					config:  cfg,
-					service: service,
+					job:   job,
+					group: taskGroup,
 				})
 			}
 		}
 	}
 
 	return items, nil
-}
-
-func (p *Provider) itemGet(srv proxy.RegisteredServer) (*item, error) {
-	items, err := p.itemList()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, it := range items {
-		if it.config.Server == srv.ServerInfo().Name() {
-			return it, nil
-		}
-	}
-
-	return nil, fmt.Errorf("item not found")
 }

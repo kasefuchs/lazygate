@@ -1,76 +1,52 @@
 package plugin
 
 import (
-	"math/rand"
+	"time"
 
-	"go.minekube.com/gate/pkg/edition/java/proto/version"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
-	"go.minekube.com/gate/pkg/util/componentutil"
 )
 
 func (p *Plugin) onDisconnectEvent(event *proxy.DisconnectEvent) {
 	if conn := event.Player().CurrentServer(); conn != nil {
 		srv := conn.Server()
-
-		if srv.Players().Len() == 0 {
-			if alloc, err := p.provider.AllocationGet(srv); err == nil {
-				p.log.Info("stopping server", "name", srv.ServerInfo().Name())
-				if err := alloc.Stop(); err != nil {
-					p.log.Error(err, "failed to stop server")
-				}
-			}
+		if ent := p.monitor.Registry().EntryGet(srv); ent != nil {
+			ent.UpdateLastActive()
 		}
 	}
 }
 
-func (p *Plugin) onPlayerChooseInitialServerEvent(event *proxy.PlayerChooseInitialServerEvent) {
-	srv := event.InitialServer()
+func (p *Plugin) onServerPreConnectEvent(event *proxy.ServerPreConnectEvent) {
 	plr := event.Player()
+	srv := event.Server()
 
-	if srv != nil {
-		req := plr.CreateConnectionRequest(srv)
-		if _, err := req.Connect(plr.Context()); err == nil {
-			return
-		}
+	ent := p.monitor.Registry().EntryGet(srv)
+	if ent == nil || ent.Ping(plr.Context(), p.proxy.Config()) {
+		return
+	}
 
-		if alloc, err := p.provider.AllocationGet(srv); err == nil {
-			cfg := alloc.Config()
-			if err := alloc.Start(); err != nil {
-				p.log.Error(err, "failed to resume server")
-				if textComponent, err := componentutil.ParseTextComponent(version.MinimumVersion.Protocol, cfg.DisconnectReasons.ActionFailed); err == nil {
-					plr.Disconnect(textComponent)
-				}
+	cfg, err := ent.Allocation.Config()
+	if err != nil {
+		return
+	}
 
-				return
-			}
+	name := srv.ServerInfo().Name()
+	p.log.Info("Starting server allocation", "server", name)
 
-			if textComponent, err := componentutil.ParseTextComponent(version.MinimumVersion.Protocol, cfg.DisconnectReasons.Starting); err == nil {
-				plr.Disconnect(textComponent)
-			}
+	ent.KeepOnlineFor(time.Duration(cfg.Time.MinimumOnline))
 
-			return
-		}
+	if err := ent.Allocation.Start(); err != nil {
+		p.log.Error(err, "Failed to start server allocation", "server", name)
+		plr.Disconnect(cfg.DisconnectReasons.StartFailed.TextComponent())
 
 		return
 	}
 
-	allocs, err := p.provider.AllocationList()
-	if err != nil || len(allocs) == 0 {
-		return
-	}
+	plr.Disconnect(cfg.DisconnectReasons.Starting.TextComponent())
+}
 
-	alloc := allocs[rand.Intn(len(allocs))]
-	cfg := alloc.Config()
-	if err := alloc.Start(); err != nil {
-		p.log.Error(err, "failed to resume server")
-		if textComponent, err := componentutil.ParseTextComponent(version.MinimumVersion.Protocol, cfg.DisconnectReasons.ActionFailed); err == nil {
-			plr.Disconnect(textComponent)
-		}
-
-		return
-	}
-
-	if textComponent, err := componentutil.ParseTextComponent(version.MinimumVersion.Protocol, cfg.DisconnectReasons.Starting); err == nil {
-		plr.Disconnect(textComponent)
+func (p *Plugin) onServerPostConnectEvent(event *proxy.ServerPostConnectEvent) {
+	srv := event.Player().CurrentServer().Server()
+	if ent := p.monitor.Registry().EntryGet(srv); ent != nil {
+		ent.UpdateLastActive()
 	}
 }

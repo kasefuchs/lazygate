@@ -1,3 +1,19 @@
+x-templates:
+  minecraft-server-environment: &minecraft-server-environment
+    EULA: true
+    TYPE: limbo
+    LIMBO_BUILD: 46
+    CUSTOM_SERVER_PROPERTIES: |
+      bungeecord=false
+      allow-flight=true
+
+  minecraft-server: &minecraft-server
+    image: itzg/minecraft-server:latest
+    networks:
+      - minecraft
+    environment:
+      <<: *minecraft-server-environment
+
 services:
   gate:
     image: ghcr.io/kasefuchs/lazygate:latest
@@ -10,30 +26,39 @@ services:
       - "/var/run/docker.sock:/var/run/docker.sock:rw"
       - "../configs/gate.docker.yml:/config.yml:ro"
     networks:
-      - gate
+      - minecraft
     env_file:
       - ../configs/gate.docker.env
 
-  minecraft-server:
-    image: itzg/minecraft-server:latest
+  notorious:
+    <<: *minecraft-server
     ports:
-      - "30000:30000"
+      - "33019:30000"
     labels:
-      lazygate.server: seiko
+      lazygate.server: notorious
+      lazygate.time.minimumOnline: 30s
+      lazygate.time.inactivityThreshold: 30s
+      lazygate.disconnectReasons.starting: Notorious is currently starting!
+      lazygate.disconnectReasons.startFailed: Notorious is failed to start :(
     volumes:
-      - "minecraft-server:/data"
-    networks:
-      - gate
-    environment:
-      EULA: true
-      TYPE: limbo
-      LIMBO_BUILD: 46
-      SERVER_PORT: 30000
-      CUSTOM_SERVER_PROPERTIES: |
-        bungeecord=true
+      - "notorious:/data"
+
+  luminescence:
+    <<: *minecraft-server
+    ports:
+      - "37666:30000"
+    labels:
+      lazygate.server: luminescence
+      lazygate.time.minimumOnline: 2m
+      lazygate.time.inactivityThreshold: 5m
+      lazygate.disconnectReasons.starting: Luminescence is currently starting!
+      lazygate.disconnectReasons.startFailed: Luminescence is failed to start :(
+    volumes:
+      - "luminescence:/data"
 
 volumes:
-  minecraft-server: {}
+  notorious: {}
+  luminescence: {}
 
 networks:
-  gate: {}
+  minecraft: {}

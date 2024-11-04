@@ -1,6 +1,8 @@
 package nomad
 
 import (
+	"fmt"
+
 	"github.com/go-logr/logr"
 	"github.com/hashicorp/nomad/api"
 	"github.com/kasefuchs/lazygate/pkg/provider"
@@ -25,23 +27,34 @@ func (p *Provider) initClient() error {
 }
 
 func (p *Provider) Init(opt *provider.InitOptions) error {
-	p.log = opt.Log
+	p.log = logr.FromContextOrDiscard(opt.Ctx).WithName(provider.LogName)
 
 	if err := p.initClient(); err != nil {
 		return err
 	}
 
-	p.log.Info("initialized provider")
+	p.log.Info("initialized")
 	return nil
 }
 
 func (p *Provider) AllocationGet(srv proxy.RegisteredServer) (provider.Allocation, error) {
-	it, err := p.itemGet(srv)
+	allocs, err := p.AllocationList()
 	if err != nil {
 		return nil, err
 	}
 
-	return NewAllocation(p.client, it), nil
+	for _, alloc := range allocs {
+		cfg, err := alloc.Config()
+		if err != nil {
+			continue
+		}
+
+		if cfg.Server == srv.ServerInfo().Name() {
+			return alloc, nil
+		}
+	}
+
+	return nil, fmt.Errorf("no allocation found")
 }
 
 func (p *Provider) AllocationList() ([]provider.Allocation, error) {

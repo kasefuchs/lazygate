@@ -55,9 +55,13 @@ LazyGate matches registered Gate servers with provider's allocations using label
 
 ```yaml
 services:
-  minecraft-server1:
+  minecraft-server-random:
     labels:
       lazygate.server: random_name
+      lazygate.time.minimumOnline: 2m
+      lazygate.time.inactivityThreshold: 5m
+      lazygate.disconnectReasons.starting: random_name currently starting!
+      lazygate.disconnectReasons.startFailed: Failed to start random_name :(
 ```
 
 **Gate config:**
@@ -66,7 +70,7 @@ services:
 ---
 config:
   servers:
-    random_name: minecraft-server1:25565
+    random_name: minecraft-server-random:25565
   try:
     - random_name
 ```

@@ -2,8 +2,10 @@
 config:
   bind: 0.0.0.0:25565
   servers:
-    seiko: minecraft-server:30000
+    notorious: notorious:30000
+    luminescence: luminescence:30000
   try:
-    - seiko
+    - notorious
+    - luminescence
   forwarding:
     mode: legacy
