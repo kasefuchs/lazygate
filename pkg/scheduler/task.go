@@ -1,7 +1,7 @@
-package monitor
+package scheduler
 
 // Checks if allocation should be stopped and stops it.
-func (m *Monitor) allocationStopTicker() {
+func (m *Scheduler) stopStaleAllocations() {
 	for _, ent := range m.registry.EntryList() {
 		if !ent.ShouldStop() {
 			continue

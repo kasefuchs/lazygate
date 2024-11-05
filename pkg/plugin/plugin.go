@@ -5,8 +5,9 @@ import (
 	"math"
 
 	"github.com/go-logr/logr"
-	"github.com/kasefuchs/lazygate/pkg/monitor"
 	"github.com/kasefuchs/lazygate/pkg/provider"
+	"github.com/kasefuchs/lazygate/pkg/registry"
+	"github.com/kasefuchs/lazygate/pkg/scheduler"
 	"github.com/robinbraemer/event"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
@@ -18,12 +19,13 @@ const (
 
 // Plugin is the LazyGate Gate plugin.
 type Plugin struct {
-	ctx      context.Context   // Plugin context.
-	log      logr.Logger       // Plugin logger.
-	proxy    *proxy.Proxy      // Gate proxy instance.
-	monitor  *monitor.Monitor  // Plugin server monitor.
-	options  *Options          // Plugin options.
-	provider provider.Provider // Runner provider.
+	ctx      context.Context      // Plugin context.
+	log      logr.Logger          // Plugin logger.
+	proxy    *proxy.Proxy         // Gate proxy instance.
+	monitor  *scheduler.Scheduler // Plugin server monitor.
+	options  *Options             // Plugin options.
+	registry *registry.Registry   // Plugin registry.
+	provider provider.Provider    // Allocation provider.
 }
 
 // NewPlugin creates new instance of plugin.
@@ -65,19 +67,27 @@ func (p *Plugin) initProvider() error {
 	return p.provider.Init(opt)
 }
 
+// initRegistry initializes new registry.
+func (p *Plugin) initRegistry() error {
+	p.registry = registry.NewRegistry(p.proxy, p.provider)
+	p.registry.Refresh()
+
+	return nil
+}
+
 // initMonitor initializes server monitor.
 func (p *Plugin) initMonitor() error {
-	p.monitor = monitor.NewMonitor(p.ctx, p.proxy, p.provider)
+	p.monitor = scheduler.NewScheduler(p.ctx, p.registry, p.provider)
 
 	return p.monitor.Init()
 }
 
+// initHandlers subscribes event handlers.
 func (p *Plugin) initHandlers() error {
 	eventMgr := p.proxy.Event()
 
 	event.Subscribe(eventMgr, math.MaxInt, p.onDisconnectEvent)
 	event.Subscribe(eventMgr, math.MaxInt, p.onServerPreConnectEvent)
-	event.Subscribe(eventMgr, math.MaxInt, p.onServerPostConnectEvent)
 
 	return nil
 }
@@ -87,6 +97,9 @@ func (p *Plugin) Init() error {
 	p.log = logr.FromContextOrDiscard(p.ctx).WithName(logName)
 
 	if err := p.initProvider(); err != nil {
+		return err
+	}
+	if err := p.initRegistry(); err != nil {
 		return err
 	}
 	if err := p.initMonitor(); err != nil {

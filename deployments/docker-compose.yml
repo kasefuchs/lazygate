@@ -3,9 +3,6 @@ x-templates:
     EULA: true
     TYPE: limbo
     LIMBO_BUILD: 46
-    CUSTOM_SERVER_PROPERTIES: |
-      bungeecord=false
-      allow-flight=true
 
   minecraft-server: &minecraft-server
     image: itzg/minecraft-server:latest
@@ -42,6 +39,12 @@ services:
       lazygate.disconnectReasons.startFailed: Notorious is failed to start :(
     volumes:
       - "notorious:/data"
+    environment:
+      <<: *minecraft-server-environment
+      CUSTOM_SERVER_PROPERTIES: |
+        tab-header=Notorious
+        bungeecord=false
+        allow-flight=true
 
   luminescence:
     <<: *minecraft-server
@@ -55,6 +58,12 @@ services:
       lazygate.disconnectReasons.startFailed: Luminescence is failed to start :(
     volumes:
       - "luminescence:/data"
+    environment:
+      <<: *minecraft-server-environment
+      CUSTOM_SERVER_PROPERTIES: |
+        tab-header=Luminescence
+        bungeecord=false
+        allow-flight=true
 
 volumes:
   notorious: {}

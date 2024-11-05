@@ -9,7 +9,7 @@ import (
 func (p *Plugin) onDisconnectEvent(event *proxy.DisconnectEvent) {
 	if conn := event.Player().CurrentServer(); conn != nil {
 		srv := conn.Server()
-		if ent := p.monitor.Registry().EntryGet(srv); ent != nil {
+		if ent := p.registry.EntryGet(srv); ent != nil {
 			ent.UpdateLastActive()
 		}
 	}
@@ -18,9 +18,10 @@ func (p *Plugin) onDisconnectEvent(event *proxy.DisconnectEvent) {
 func (p *Plugin) onServerPreConnectEvent(event *proxy.ServerPreConnectEvent) {
 	plr := event.Player()
 	srv := event.Server()
+	ctx := plr.Context()
 
-	ent := p.monitor.Registry().EntryGet(srv)
-	if ent == nil || ent.Ping(plr.Context(), p.proxy.Config()) {
+	ent := p.registry.EntryGet(srv)
+	if ent == nil || ent.Ping(ctx, p.proxy.Config()) {
 		return
 	}
 
@@ -32,8 +33,6 @@ func (p *Plugin) onServerPreConnectEvent(event *proxy.ServerPreConnectEvent) {
 	name := srv.ServerInfo().Name()
 	p.log.Info("Starting server allocation", "server", name)
 
-	ent.KeepOnlineFor(time.Duration(cfg.Time.MinimumOnline))
-
 	if err := ent.Allocation.Start(); err != nil {
 		p.log.Error(err, "Failed to start server allocation", "server", name)
 		plr.Disconnect(cfg.DisconnectReasons.StartFailed.TextComponent())
@@ -41,12 +40,6 @@ func (p *Plugin) onServerPreConnectEvent(event *proxy.ServerPreConnectEvent) {
 		return
 	}
 
+	ent.KeepOnlineFor(time.Duration(cfg.Time.MinimumOnline))
 	plr.Disconnect(cfg.DisconnectReasons.Starting.TextComponent())
-}
-
-func (p *Plugin) onServerPostConnectEvent(event *proxy.ServerPostConnectEvent) {
-	srv := event.Player().CurrentServer().Server()
-	if ent := p.monitor.Registry().EntryGet(srv); ent != nil {
-		ent.UpdateLastActive()
-	}
 }

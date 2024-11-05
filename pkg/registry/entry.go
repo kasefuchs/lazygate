@@ -1,4 +1,4 @@
-package monitor
+package registry
 
 import (
 	"context"
@@ -17,7 +17,7 @@ import (
 	"go.minekube.com/gate/pkg/util/netutil"
 )
 
-// Entry contains server monitor metadata.
+// Entry contains server metadata.
 type Entry struct {
 	Server     proxy.RegisteredServer // Server, obviously.
 	Allocation provider.Allocation    // Allocation associated with server.
@@ -71,7 +71,7 @@ func (e *Entry) ShouldStop() bool {
 	return time.Since(e.LastActive) >= time.Duration(cfg.Time.InactivityThreshold)
 }
 
-// Ping calls underlying minecraft server.
+// Ping pings underlying minecraft server.
 func (e *Entry) Ping(ctx context.Context, cfg config.Config) bool {
 	// Close everything after function.
 	c, cancel := context.WithCancel(ctx)
@@ -122,7 +122,7 @@ func (e *Entry) Ping(ctx context.Context, cfg config.Config) bool {
 		return false
 	}
 
-	// Verify response.
+	// Verify pong.
 	registry := state.FromDirection(proto.ServerBound, state.Status, pack.Protocol)
 	if id, ok := registry.PacketID(ping); ok && id == pack.PacketID {
 		return ping.RandomID == pack.Packet.(*packet.StatusPing).RandomID
