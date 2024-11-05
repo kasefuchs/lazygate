@@ -3,6 +3,7 @@ package plugin
 import (
 	"time"
 
+	"github.com/kasefuchs/lazygate/pkg/queue"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 
@@ -31,15 +32,26 @@ func (p *Plugin) onServerPreConnectEvent(event *proxy.ServerPreConnectEvent) {
 	}
 
 	name := srv.ServerInfo().Name()
-	p.log.Info("Starting server allocation", "server", name)
-
+	p.log.Info("starting server allocation", "server", name)
 	if err := ent.Allocation.Start(); err != nil {
-		p.log.Error(err, "Failed to start server allocation", "server", name)
-		plr.Disconnect(cfg.DisconnectReasons.StartFailed.TextComponent())
+		p.log.Error(err, "failed to start server allocation", "server", name)
 
 		return
 	}
 
 	ent.KeepOnlineFor(time.Duration(cfg.Time.MinimumOnline))
-	plr.Disconnect(cfg.DisconnectReasons.Starting.TextComponent())
+
+	ticket := &queue.Ticket{
+		Entry:  ent,
+		Config: cfg,
+		Player: plr,
+	}
+
+	for _, qn := range cfg.Queue.Try {
+		q := p.queues.Get(qn)
+
+		if q == nil || q.Enter(ticket) {
+			return
+		}
+	}
 }

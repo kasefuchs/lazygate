@@ -11,8 +11,8 @@ import (
 type Config struct {
 	Server string `validate:"required"` // The upstream server name.
 
-	Time              *Time              // Time related server configuration.
-	DisconnectReasons *DisconnectReasons // Reasons to kick with when disconnecting players.
+	Time  *Time  // Time related server configuration.
+	Queue *Queue // Queue related configuration.
 }
 
 // Time contains time related server configuration.
@@ -21,10 +21,22 @@ type Time struct {
 	InactivityThreshold ptypes.Duration // Duration of inactivity to stop after.
 }
 
-// DisconnectReasons contains reasons to use when disconnecting players.
-type DisconnectReasons struct {
-	Starting    ctypes.RawTextComponent // Reason to disconnect with when allocation is starting.
-	StartFailed ctypes.RawTextComponent // Reason to disconnect with when action on allocation is failed.
+// Queue configuration.
+type Queue struct {
+	Try  []string   // List of queues to try.
+	Wait *QueueWait // Queue waiting for server start.
+	Kick *QueueKick // Queue instantly kicking player.
+}
+
+// QueueKick represents kick queue configuration.
+type QueueKick struct {
+	Starting ctypes.RawTextComponent // Reason to kick with when allocation is starting.
+}
+
+// QueueWait represents wait queue configuration.
+type QueueWait struct {
+	Timeout      ptypes.Duration // Maximum amount of time to wait for server start. Must be less than Minecraft timeout of 30 seconds.
+	PingInterval ptypes.Duration // Interval to ping backend server with. Keep it lower than half of timeout.
 }
 
 // DefaultConfig returns default config.
@@ -34,9 +46,15 @@ func DefaultConfig() *Config {
 			MinimumOnline:       ptypes.Duration(time.Minute),
 			InactivityThreshold: ptypes.Duration(time.Minute),
 		},
-		DisconnectReasons: &DisconnectReasons{
-			Starting:    "Server is starting...\n\nPlease try to reconnect in a minute.",
-			StartFailed: "Failed to start the server.\n\nPlease try to reconnect later.",
+		Queue: &Queue{
+			Try: []string{"wait", "kick"},
+			Kick: &QueueKick{
+				Starting: "Server is starting...\n\nPlease try to reconnect in a minute.",
+			},
+			Wait: &QueueWait{
+				Timeout:      ptypes.Duration(25 * time.Second),
+				PingInterval: ptypes.Duration(3 * time.Second),
+			},
 		},
 	}
 }

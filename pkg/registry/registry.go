@@ -16,6 +16,8 @@ type Registry struct {
 // NewRegistry creates new instance of Registry.
 func NewRegistry(proxy *proxy.Proxy, provider provider.Provider) *Registry {
 	return &Registry{
+		data: make(map[string]*Entry),
+
 		proxy:    proxy,
 		provider: provider,
 	}

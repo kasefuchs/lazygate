@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/kasefuchs/lazygate/pkg/provider"
+	"github.com/kasefuchs/lazygate/pkg/queue"
 	"github.com/kasefuchs/lazygate/pkg/registry"
 	"github.com/kasefuchs/lazygate/pkg/scheduler"
 	"github.com/robinbraemer/event"
@@ -19,13 +20,14 @@ const (
 
 // Plugin is the LazyGate Gate plugin.
 type Plugin struct {
-	ctx      context.Context      // Plugin context.
-	log      logr.Logger          // Plugin logger.
-	proxy    *proxy.Proxy         // Gate proxy instance.
-	monitor  *scheduler.Scheduler // Plugin server monitor.
-	options  *Options             // Plugin options.
-	registry *registry.Registry   // Plugin registry.
-	provider provider.Provider    // Allocation provider.
+	ctx       context.Context      // Plugin context.
+	log       logr.Logger          // Plugin logger.
+	proxy     *proxy.Proxy         // Gate proxy instance.
+	queues    *queue.Repository    // Plugin queues repository.
+	options   *Options             // Plugin options.
+	registry  *registry.Registry   // Plugin registry.
+	provider  provider.Provider    // Allocation provider.
+	scheduler *scheduler.Scheduler // Plugin server scheduler.
 }
 
 // NewPlugin creates new instance of plugin.
@@ -75,11 +77,34 @@ func (p *Plugin) initRegistry() error {
 	return nil
 }
 
-// initMonitor initializes server monitor.
-func (p *Plugin) initMonitor() error {
-	p.monitor = scheduler.NewScheduler(p.ctx, p.registry, p.provider)
+// initScheduler initializes server scheduler.
+func (p *Plugin) initScheduler() error {
+	p.scheduler = scheduler.NewScheduler(p.ctx, p.registry, p.provider)
 
-	return p.monitor.Init()
+	return p.scheduler.Init()
+}
+
+// initQueues initializes player queues.
+func (p *Plugin) initQueues() error {
+	queues, err := p.options.QueuesSelector()
+	if err != nil {
+		return err
+	}
+
+	opts := &queue.InitOptions{
+		Proxy: p.proxy,
+	}
+
+	p.queues = queue.NewRepository()
+	for _, q := range queues {
+		if err := q.Init(opts); err != nil {
+			return err
+		}
+
+		p.queues.Push(q)
+	}
+
+	return nil
 }
 
 // initHandlers subscribes event handlers.
@@ -102,7 +127,10 @@ func (p *Plugin) Init() error {
 	if err := p.initRegistry(); err != nil {
 		return err
 	}
-	if err := p.initMonitor(); err != nil {
+	if err := p.initScheduler(); err != nil {
+		return err
+	}
+	if err := p.initQueues(); err != nil {
 		return err
 	}
 	if err := p.initHandlers(); err != nil {

@@ -8,7 +8,7 @@ import (
 
 const LogName = "lazygate.provider"
 
-// InitOptions represents options to pass to provider.
+// InitOptions represents options to pass to provider initializer.
 type InitOptions struct {
 	Ctx context.Context // Plugin context.
 }

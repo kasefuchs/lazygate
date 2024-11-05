@@ -60,8 +60,10 @@ services:
       lazygate.server: random_name
       lazygate.time.minimumOnline: 2m
       lazygate.time.inactivityThreshold: 5m
-      lazygate.disconnectReasons.starting: random_name currently starting!
-      lazygate.disconnectReasons.startFailed: Failed to start random_name :(
+      lazygate.queue.try: wait,kick
+      lazygate.queue.wait.timeout: 10s
+      lazygate.queue.wait.pingInterval: 2s
+      lazygate.queue.kick.starting: random_name is currently starting!
 ```
 
 **Gate config:**

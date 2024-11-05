@@ -35,8 +35,8 @@ services:
       lazygate.server: notorious
       lazygate.time.minimumOnline: 30s
       lazygate.time.inactivityThreshold: 30s
-      lazygate.disconnectReasons.starting: Notorious is currently starting!
-      lazygate.disconnectReasons.startFailed: Notorious is failed to start :(
+      lazygate.queue.try: kick
+      lazygate.queue.kick.starting: Notorious is currently starting!
     volumes:
       - "notorious:/data"
     environment:
@@ -54,8 +54,10 @@ services:
       lazygate.server: luminescence
       lazygate.time.minimumOnline: 2m
       lazygate.time.inactivityThreshold: 5m
-      lazygate.disconnectReasons.starting: Luminescence is currently starting!
-      lazygate.disconnectReasons.startFailed: Luminescence is failed to start :(
+      lazygate.queue.try: wait,kick
+      lazygate.queue.wait.timeout: 10s
+      lazygate.queue.wait.pingInterval: 2s
+      lazygate.queue.kick.starting: Luminescence is currently starting!
     volumes:
       - "luminescence:/data"
     environment:
