@@ -29,7 +29,7 @@ func (r *Registry) Clear() {
 }
 
 // Refresh updates registry data with new info.
-func (r *Registry) Refresh() {
+func (r *Registry) Refresh(namespace string) {
 	r.Clear()
 
 	for _, srv := range r.proxy.Servers() {
@@ -38,8 +38,15 @@ func (r *Registry) Refresh() {
 			continue
 		}
 
-		ent := NewEntry(srv, alloc)
-		r.EntryRegister(ent)
+		cfg, err := alloc.Config()
+		if err != nil {
+			continue
+		}
+
+		if cfg.Namespace == namespace {
+			ent := NewEntry(srv, alloc)
+			r.EntryRegister(ent)
+		}
 	}
 }
 

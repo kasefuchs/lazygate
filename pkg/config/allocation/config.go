@@ -9,7 +9,8 @@ import (
 
 // Config represents specific server config.
 type Config struct {
-	Server string `validate:"required"` // The upstream server name.
+	Server    string `validate:"required"` // The upstream server name.
+	Namespace string // Namespace to associate this allocation with.
 
 	Time  *Time  // Time related server configuration.
 	Queue *Queue // Queue related configuration.
@@ -42,6 +43,7 @@ type QueueWait struct {
 // DefaultConfig returns default config.
 func DefaultConfig() *Config {
 	return &Config{
+		Namespace: "default",
 		Time: &Time{
 			MinimumOnline:       ptypes.Duration(time.Minute),
 			InactivityThreshold: ptypes.Duration(time.Minute),

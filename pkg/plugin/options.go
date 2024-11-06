@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	pconfig "github.com/kasefuchs/lazygate/pkg/config/plugin"
 	"github.com/kasefuchs/lazygate/pkg/provider"
 	"github.com/kasefuchs/lazygate/pkg/provider/docker"
 	"github.com/kasefuchs/lazygate/pkg/provider/nomad"
@@ -19,10 +20,14 @@ type providerSelector func() (provider.Provider, error)
 // queuesSelector represents function used to select queues to use.
 type queuesSelector func() ([]queue.Queue, error)
 
-// Options contains customizable plugin options.
+// configLoader represents function used to load pconfig configuration.
+type configLoader func() (*pconfig.Config, error)
+
+// Options contains customizable pconfig options.
 type Options struct {
 	ProviderSelector providerSelector // Selector of provider.
 	QueuesSelector   queuesSelector   // Selector of available queues.
+	ConfigLoader     configLoader     // Loader of plugin config.
 }
 
 // DefaultProviderSelector contains default provider selector.
@@ -35,9 +40,9 @@ func DefaultProviderSelector() (provider.Provider, error) {
 	case "docker":
 		return &docker.Provider{}, nil
 	case "":
-		return nil, fmt.Errorf("no plugin provider specified")
+		return nil, fmt.Errorf("no allocation provider specified")
 	default:
-		return nil, fmt.Errorf("unknown provider: %s", name)
+		return nil, fmt.Errorf("unknown allocation provider: %s", name)
 	}
 }
 
@@ -49,10 +54,16 @@ func DefaultQueuesSelector() ([]queue.Queue, error) {
 	}, nil
 }
 
+// DefaultConfigLoader loads plugin config from environment.
+func DefaultConfigLoader() (*pconfig.Config, error) {
+	return pconfig.ParseEnv()
+}
+
 // DefaultOptions returns options object with default parameters.
 func DefaultOptions() *Options {
 	return &Options{
 		ProviderSelector: DefaultProviderSelector,
 		QueuesSelector:   DefaultQueuesSelector,
+		ConfigLoader:     DefaultConfigLoader,
 	}
 }

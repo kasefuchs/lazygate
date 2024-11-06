@@ -5,6 +5,7 @@ import (
 	"math"
 
 	"github.com/go-logr/logr"
+	pconfig "github.com/kasefuchs/lazygate/pkg/config/plugin"
 	"github.com/kasefuchs/lazygate/pkg/provider"
 	"github.com/kasefuchs/lazygate/pkg/queue"
 	"github.com/kasefuchs/lazygate/pkg/registry"
@@ -24,6 +25,7 @@ type Plugin struct {
 	log       logr.Logger          // Plugin logger.
 	proxy     *proxy.Proxy         // Gate proxy instance.
 	queues    *queue.Repository    // Plugin queues repository.
+	config    *pconfig.Config      // Plugin configuration.
 	options   *Options             // Plugin options.
 	registry  *registry.Registry   // Plugin registry.
 	provider  provider.Provider    // Allocation provider.
@@ -54,6 +56,14 @@ func NewProxyPlugin(options ...*Options) proxy.Plugin {
 	}
 }
 
+// initConfig loads plugin config.
+func (p *Plugin) initConfig() error {
+	var err error
+	p.config, err = p.options.ConfigLoader()
+
+	return err
+}
+
 // initProvider initializes server provider.
 func (p *Plugin) initProvider() error {
 	var err error
@@ -72,7 +82,7 @@ func (p *Plugin) initProvider() error {
 // initRegistry initializes new registry.
 func (p *Plugin) initRegistry() error {
 	p.registry = registry.NewRegistry(p.proxy, p.provider)
-	p.registry.Refresh()
+	p.registry.Refresh(p.config.Namespace)
 
 	return nil
 }
@@ -121,6 +131,9 @@ func (p *Plugin) initHandlers() error {
 func (p *Plugin) Init() error {
 	p.log = logr.FromContextOrDiscard(p.ctx).WithName(logName)
 
+	if err := p.initConfig(); err != nil {
+		return err
+	}
 	if err := p.initProvider(); err != nil {
 		return err
 	}
