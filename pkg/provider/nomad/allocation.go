@@ -28,15 +28,24 @@ func NewAllocation(client *api.Client, item *item) *Allocation {
 	}
 }
 
-func (a *Allocation) scale(count *int64) error {
+func (a *Allocation) taskGroup() (*api.TaskGroup, error) {
 	job, _, err := a.client.Jobs().Info(*a.item.job.ID, nil)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	group := job.LookupTaskGroup(*a.item.group.Name)
 	if group == nil {
-		return fmt.Errorf("task group %s not found", *a.item.group.Name)
+		return nil, fmt.Errorf("task group %s not found", *a.item.group.Name)
+	}
+
+	return group, nil
+}
+
+func (a *Allocation) scale(count *int64) error {
+	group, err := a.taskGroup()
+	if err != nil {
+		return err
 	}
 
 	if int64(*group.Count) != *count {
@@ -66,45 +75,31 @@ func (a *Allocation) Start() error {
 }
 
 func (a *Allocation) State() provider.AllocationState {
-	info, _, err := a.client.Jobs().Info(*a.item.job.ID, nil)
+	group, err := a.taskGroup()
 	if err != nil {
 		return provider.AllocationStateUnknown
 	}
 
-	for _, group := range info.TaskGroups {
-		if group.Name != a.item.group.Name {
-			continue
-		}
-
-		if *group.Count == 0 {
-			return provider.AllocationStateStopped
-		}
-
-		return provider.AllocationStateStarted
+	if *group.Count == 0 {
+		return provider.AllocationStateStopped
 	}
 
-	return provider.AllocationStateUnknown
+	return provider.AllocationStateStarted
 }
 
 func (a *Allocation) Config() (*allocation.Config, error) {
-	info, _, err := a.client.Jobs().Info(*a.item.job.ID, nil)
+	group, err := a.taskGroup()
 	if err != nil {
 		return nil, err
 	}
 
-	for _, group := range info.TaskGroups {
-		if group.Name != a.item.group.Name {
+	for _, service := range group.Services {
+		cfg, err := allocation.ParseTags(service.Tags)
+		if err != nil {
 			continue
 		}
 
-		for _, service := range group.Services {
-			cfg, err := allocation.ParseTags(service.Tags)
-			if err != nil {
-				continue
-			}
-
-			return cfg, nil
-		}
+		return cfg, nil
 	}
 
 	return nil, fmt.Errorf("no allocation configuration found")

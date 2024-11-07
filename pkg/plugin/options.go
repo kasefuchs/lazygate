@@ -20,10 +20,10 @@ type providerSelector func() (provider.Provider, error)
 // queuesSelector represents function used to select queues to use.
 type queuesSelector func() ([]queue.Queue, error)
 
-// configLoader represents function used to load pconfig configuration.
+// configLoader represents function used to load plugin configuration.
 type configLoader func() (*pconfig.Config, error)
 
-// Options contains customizable pconfig options.
+// Options contains customizable plugin options.
 type Options struct {
 	ProviderSelector providerSelector // Selector of provider.
 	QueuesSelector   queuesSelector   // Selector of available queues.
