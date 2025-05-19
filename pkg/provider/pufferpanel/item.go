@@ -2,6 +2,7 @@ package pufferpanel
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 )
@@ -18,8 +19,10 @@ type Servers struct {
 func (p *Provider) itemList() ([]*item, error) {
 	var items []*item
 
-	token := p.client.getToken()
-	var err error
+	token, err := p.client.getToken()
+	if err != nil {
+		return nil, err
+	}
 	client := &http.Client{}
 	var req *http.Request
 	req, err = http.NewRequest("GET", p.client.baseUrl+"api/servers", nil)
@@ -43,7 +46,9 @@ func (p *Provider) itemList() ([]*item, error) {
 	}
 	for _, server := range servers.Servers {
 		if id := server["id"]; id != nil {
-			items = append(items, &item{id: id.(string)}) //maybe not the right cast
+			item := &item{id: id.(string)}
+			fmt.Println(item.id)
+			items = append(items, item) //maybe not the right cast
 		}
 	}
 

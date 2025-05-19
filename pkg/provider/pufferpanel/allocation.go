@@ -14,7 +14,7 @@ var _ provider.Allocation = (*Allocation)(nil)
 // Allocation represents Docker provider item.
 type Allocation struct {
 	client *Client
-	item   *item // Docker container item.
+	item   *item
 }
 
 func NewAllocation(client *Client, item *item) *Allocation {
@@ -25,7 +25,10 @@ func NewAllocation(client *Client, item *item) *Allocation {
 }
 
 func (a *Allocation) Stop() error {
-	token := a.client.getToken()
+	token, err := a.client.getToken()
+	if err != nil {
+		return err
+	}
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", a.client.baseUrl+"api/servers/"+a.item.id+"/stop", nil)
 	if err != nil {
@@ -42,7 +45,10 @@ func (a *Allocation) Stop() error {
 }
 
 func (a *Allocation) Start() error {
-	token := a.client.getToken()
+	token, err := a.client.getToken()
+	if err != nil {
+		return err
+	}
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", a.client.baseUrl+"api/servers/"+a.item.id+"/start", nil)
 	if err != nil {
@@ -63,7 +69,10 @@ func (a *Allocation) State() provider.AllocationState {
 		Running    bool `json:"running"`
 		Installing bool `json:"installing"`
 	}
-	token := a.client.getToken()
+	token, err := a.client.getToken()
+	if err != nil {
+		return provider.AllocationStateUnknown
+	}
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", a.client.baseUrl+"api/servers/"+a.item.id+"/stop", nil)
 	if err != nil {
@@ -90,9 +99,12 @@ func (a *Allocation) State() provider.AllocationState {
 
 func (a *Allocation) Config() (*allocation.Config, error) {
 	config := map[string]string{}
-	token := a.client.getToken()
+	token, err := a.client.getToken()
+	if err != nil {
+		return nil, err
+	}
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", a.client.baseUrl+"api/servers/"+a.item.id+"/stop", nil)
+	req, err := http.NewRequest("GET", a.client.baseUrl+"api/servers/"+a.item.id+"/file/lazygate.json", nil)
 	if err != nil {
 		return nil, err
 	}

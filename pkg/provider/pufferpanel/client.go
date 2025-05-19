@@ -28,7 +28,7 @@ func NewClient() (*Client, error) {
 	}, nil
 }
 
-func (client *Client) getToken() OAuth2Token {
+func (client *Client) getToken() (*OAuth2Token, error) {
 	var token OAuth2Token
 	data := url.Values{}
 
@@ -37,16 +37,16 @@ func (client *Client) getToken() OAuth2Token {
 	data.Set("grant_type", "client_credentials")
 	resp, err := http.PostForm(client.baseUrl+"oauth2/token", data)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	err = json.Unmarshal(body, &token)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	return token
+	return &token, nil
 }
