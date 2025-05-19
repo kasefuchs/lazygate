@@ -30,7 +30,7 @@ func (a *Allocation) Stop() error {
 		return err
 	}
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", a.client.baseUrl+"api/servers/"+a.item.id+"/stop", nil)
+	req, err := http.NewRequest("POST", a.client.baseUrl+"api/servers/"+a.item.id+"/stop", nil)
 	if err != nil {
 		return err
 	}
@@ -50,7 +50,7 @@ func (a *Allocation) Start() error {
 		return err
 	}
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", a.client.baseUrl+"api/servers/"+a.item.id+"/start", nil)
+	req, err := http.NewRequest("POST", a.client.baseUrl+"api/servers/"+a.item.id+"/start", nil)
 	if err != nil {
 		return err
 	}
