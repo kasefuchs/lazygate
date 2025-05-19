@@ -74,7 +74,7 @@ func (a *Allocation) State() provider.AllocationState {
 		return provider.AllocationStateUnknown
 	}
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", a.client.baseUrl+"api/servers/"+a.item.id+"/stop", nil)
+	req, err := http.NewRequest("GET", a.client.baseUrl+"api/servers/"+a.item.id+"/status", nil)
 	if err != nil {
 		return provider.AllocationStateUnknown
 	}
