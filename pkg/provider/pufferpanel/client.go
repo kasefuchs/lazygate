@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"strings"
 )
 
 type Client struct {
@@ -21,10 +23,13 @@ type OAuth2Token struct {
 }
 
 func NewClient() (*Client, error) {
+	baseUrl := os.Getenv("LAZYGATE_PUFFERPANEL_URL")
+	client_id := os.Getenv("LAZYGATE_PUFFERPANEL_CLIENTID")
+	client_secret := os.Getenv("LAZYGATE_PUFFERPANEL_CLIENTSECRET")
 	return &Client{
-		baseUrl:       "",
-		client_id:     "",
-		client_secret: "",
+		baseUrl:       strings.TrimSpace(baseUrl),
+		client_id:     strings.TrimSpace(client_id),
+		client_secret: strings.TrimSpace(client_secret),
 	}, nil
 }
 
