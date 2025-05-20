@@ -2,7 +2,6 @@ package pufferpanel
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 )
@@ -47,7 +46,6 @@ func (p *Provider) itemList() ([]*item, error) {
 	for _, server := range servers.Servers {
 		if id := server["id"]; id != nil {
 			item := &item{id: id.(string)}
-			fmt.Println(item.id)
 			items = append(items, item) //maybe not the right cast
 		}
 	}
