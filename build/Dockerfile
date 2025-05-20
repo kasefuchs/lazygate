@@ -1,9 +1,10 @@
-FROM --platform=$BUILDPLATFORM golang:1.23.2 AS build
+FROM --platform=$BUILDPLATFORM golang:1.24.1 AS build
 
 WORKDIR /workspace
 
 # Copy the Go Modules manifests
-COPY go.mod go.sum ./
+COPY go.mod ./
+COPY go.sum ./
 
 # cache deps before building and copying source so that we don't need to re-download as much
 # and so that source changes don't invalidate our downloaded layer
