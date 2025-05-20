@@ -62,7 +62,7 @@ func (e *Entry) ShouldStop() bool {
 	}
 
 	// Don't stop until we can get allocation configuration.
-	cfg, err := e.Allocation.Config()
+	cfg, err := provider.ParseAllocationConfig(e.Allocation)
 	if err != nil {
 		return false
 	}

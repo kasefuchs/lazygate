@@ -1,7 +1,5 @@
 package provider
 
-import "github.com/kasefuchs/lazygate/pkg/config/allocation"
-
 // AllocationState represents allocation state.
 type AllocationState uint8
 
@@ -16,6 +14,6 @@ type Allocation interface {
 	Stop() error  // Stop stops the allocation.
 	Start() error // Start starts the allocation.
 
-	State() AllocationState              // State returns current allocation state.
-	Config() (*allocation.Config, error) // Config of allocation.
+	State() AllocationState                                          // State returns current allocation state.
+	ParseConfig(cfg interface{}, prefix string) (interface{}, error) // ParseConfig parses specific config of allocation.
 }

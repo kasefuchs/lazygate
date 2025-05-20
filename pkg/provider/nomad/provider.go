@@ -11,10 +11,13 @@ import (
 
 var _ provider.Provider = (*Provider)(nil)
 
+const name = "nomad"
+
 // Provider based on Nomad API.
 type Provider struct {
 	log    logr.Logger // Provider logger.
 	client *api.Client // Nomad API client.
+	config *Config     // Provider config.
 }
 
 func (p *Provider) initClient() error {
@@ -28,6 +31,7 @@ func (p *Provider) initClient() error {
 
 func (p *Provider) Init(opt *provider.InitOptions) error {
 	p.log = logr.FromContextOrDiscard(opt.Ctx).WithName(provider.LogName)
+	p.config = opt.Config.(*Config)
 
 	if err := p.initClient(); err != nil {
 		return err
@@ -37,6 +41,14 @@ func (p *Provider) Init(opt *provider.InitOptions) error {
 	return nil
 }
 
+func (p *Provider) Name() string {
+	return name
+}
+
+func (p *Provider) DefaultConfig() interface{} {
+	return &Config{}
+}
+
 func (p *Provider) AllocationGet(srv proxy.RegisteredServer) (provider.Allocation, error) {
 	allocs, err := p.AllocationList()
 	if err != nil {
@@ -44,7 +56,7 @@ func (p *Provider) AllocationGet(srv proxy.RegisteredServer) (provider.Allocatio
 	}
 
 	for _, alloc := range allocs {
-		cfg, err := alloc.Config()
+		cfg, err := provider.ParseAllocationConfig(alloc)
 		if err != nil {
 			continue
 		}

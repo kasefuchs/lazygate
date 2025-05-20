@@ -3,6 +3,9 @@ package plugin
 import (
 	"time"
 
+	"github.com/kasefuchs/lazygate/pkg/utils"
+
+	"github.com/kasefuchs/lazygate/pkg/provider"
 	"github.com/kasefuchs/lazygate/pkg/queue"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
@@ -26,7 +29,7 @@ func (p *Plugin) onServerPreConnectEvent(event *proxy.ServerPreConnectEvent) {
 		return
 	}
 
-	cfg, err := ent.Allocation.Config()
+	cfg, err := provider.ParseAllocationConfig(ent.Allocation)
 	if err != nil {
 		return
 	}
@@ -41,16 +44,24 @@ func (p *Plugin) onServerPreConnectEvent(event *proxy.ServerPreConnectEvent) {
 
 	ent.KeepOnlineFor(time.Duration(cfg.Time.MinimumOnline))
 
-	ticket := &queue.Ticket{
-		Entry:  ent,
-		Config: cfg,
-		Player: plr,
-	}
-
-	for _, qn := range cfg.Queue.Try {
+	for _, qn := range cfg.Queues {
 		q := p.queues.Get(qn)
+		if q == nil {
+			continue
+		}
 
-		if q == nil || q.Enter(ticket) {
+		tcfg, err := ent.Allocation.ParseConfig(q.DefaultTicketConfig(), utils.ChildLabel("queue", qn))
+		if err != nil {
+			continue
+		}
+
+		ticket := &queue.Ticket{
+			Entry:  ent,
+			Config: tcfg,
+			Player: plr,
+		}
+
+		if q.Enter(ticket) {
 			return
 		}
 	}

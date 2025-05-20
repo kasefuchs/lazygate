@@ -3,9 +3,10 @@ package docker
 import (
 	"context"
 
+	"github.com/kasefuchs/lazygate/pkg/utils"
+
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
-	"github.com/kasefuchs/lazygate/pkg/config/allocation"
 	"github.com/kasefuchs/lazygate/pkg/provider"
 )
 
@@ -45,11 +46,11 @@ func (a *Allocation) State() provider.AllocationState {
 	return provider.AllocationStateStopped
 }
 
-func (a *Allocation) Config() (*allocation.Config, error) {
+func (a *Allocation) ParseConfig(cfg interface{}, rootLabel string) (interface{}, error) {
 	inspect, err := a.client.ContainerInspect(context.Background(), a.item.container.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	return allocation.ParseLabels(inspect.Config.Labels)
+	return utils.ParseLabels(inspect.Config.Labels, cfg, rootLabel)
 }

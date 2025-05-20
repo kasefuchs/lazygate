@@ -3,8 +3,9 @@ package nomad
 import (
 	"fmt"
 
+	"github.com/kasefuchs/lazygate/pkg/utils"
+
 	"github.com/hashicorp/nomad/api"
-	"github.com/kasefuchs/lazygate/pkg/config/allocation"
 	"github.com/kasefuchs/lazygate/pkg/provider"
 )
 
@@ -87,19 +88,19 @@ func (a *Allocation) State() provider.AllocationState {
 	return provider.AllocationStateStarted
 }
 
-func (a *Allocation) Config() (*allocation.Config, error) {
+func (a *Allocation) ParseConfig(cfg interface{}, rootLabel string) (interface{}, error) {
 	group, err := a.taskGroup()
 	if err != nil {
 		return nil, err
 	}
 
 	for _, service := range group.Services {
-		cfg, err := allocation.ParseTags(service.Tags)
+		cfg, err := utils.ParseTags(service.Tags, cfg, rootLabel)
 		if err != nil {
 			continue
 		}
 
-		return cfg, nil
+		return cfg.(*provider.AllocationConfig), nil
 	}
 
 	return nil, fmt.Errorf("no allocation configuration found")

@@ -32,11 +32,13 @@ services:
     ports:
       - "33019:30000"
     labels:
-      lazygate.server: notorious
-      lazygate.time.minimumOnline: 30s
-      lazygate.time.inactivityThreshold: 30s
-      lazygate.queue.try: kick
-      lazygate.queue.kick.starting: Notorious is currently starting!
+      lazygate.allocation.server: notorious
+      lazygate.allocation.time.minimumOnline: 30s
+      lazygate.allocation.time.inactivityThreshold: 30s
+      lazygate.allocation.queues: wait,kick
+      lazygate.queue.wait.timeout: 10s
+      lazygate.queue.wait.pingInterval: 2s
+      lazygate.queue.kick.reason: Notorious is currently starting!
     volumes:
       - "notorious:/data"
     environment:
@@ -49,15 +51,15 @@ services:
   luminescence:
     <<: *minecraft-server
     ports:
-      - "37666:30000"
+      - "33020:30000"
     labels:
-      lazygate.server: luminescence
-      lazygate.time.minimumOnline: 2m
-      lazygate.time.inactivityThreshold: 5m
-      lazygate.queue.try: wait,kick
+      lazygate.allocation.server: luminescence
+      lazygate.allocation.time.minimumOnline: 2m
+      lazygate.allocation.time.inactivityThreshold: 5m
+      lazygate.allocation.queues: wait,kick
       lazygate.queue.wait.timeout: 10s
       lazygate.queue.wait.pingInterval: 2s
-      lazygate.queue.kick.starting: Luminescence is currently starting!
+      lazygate.queue.kick.reason: Luminescence is currently starting!
     volumes:
       - "luminescence:/data"
     environment:

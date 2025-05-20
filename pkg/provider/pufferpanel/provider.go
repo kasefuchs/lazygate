@@ -1,6 +1,7 @@
 package pufferpanel
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/go-logr/logr"
@@ -10,29 +11,36 @@ import (
 
 var _ provider.Provider = (*Provider)(nil)
 
+const name = "pufferpanel"
+
 // Provider based on Docker API.
 type Provider struct {
-	log    logr.Logger // Provider logger.
-	client *Client     //
+	log    logr.Logger     // Provider logger.
+	ctx    context.Context // Provider context.
+	client *Client         // PufferPanel API client.
+	config *Config         // Provider config.
 }
 
-func (p *Provider) initClient() error {
-	var err error
+func (p *Provider) Name() string {
+	return name
+}
 
-	p.client, err = NewClient()
-	if err != nil {
-		return err
+func (p *Provider) DefaultConfig() interface{} {
+	return &Config{
+		ConfigFilePath: "lazygate.json",
 	}
+}
 
-	return nil
+func (p *Provider) initClient() {
+	p.client = NewClient(p.ctx, p.config.BaseUrl, p.config.ClientId, p.config.ClientSecret)
 }
 
 func (p *Provider) Init(opt *provider.InitOptions) error {
 	p.log = logr.FromContextOrDiscard(opt.Ctx).WithName(provider.LogName)
+	p.ctx = opt.Ctx
+	p.config = opt.Config.(*Config)
 
-	if err := p.initClient(); err != nil {
-		return err
-	}
+	p.initClient()
 
 	p.log.Info("initialized")
 	return nil
@@ -45,7 +53,7 @@ func (p *Provider) AllocationGet(srv proxy.RegisteredServer) (provider.Allocatio
 	}
 
 	for _, alloc := range allocs {
-		cfg, err := alloc.Config()
+		cfg, err := provider.ParseAllocationConfig(alloc)
 		if err != nil {
 			continue
 		}
@@ -66,7 +74,7 @@ func (p *Provider) AllocationList() ([]provider.Allocation, error) {
 
 	allocs := make([]provider.Allocation, len(items))
 	for i, it := range items {
-		allocs[i] = NewAllocation(p.client, it)
+		allocs[i] = NewAllocation(p.client, it, p.config.ConfigFilePath)
 	}
 
 	return allocs, nil

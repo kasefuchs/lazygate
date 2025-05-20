@@ -44,7 +44,10 @@ Configure the plugin using environment variables:
 
 ```sh
 # Provider to use. Currently available nomad, docker and pufferpanel.
-LAZYGATE_PROVIDER="nomad"
+LAZYGATE_PLUGIN_PROVIDER="nomad"
+
+# Namespace to use.
+LAZYGATE_PLUGIN_NAMESPACE="default"
 ```
 
 ### Usage
@@ -58,13 +61,13 @@ LazyGate matches registered Gate servers with provider's allocations using label
 services:
   minecraft-server-random:
     labels:
-      lazygate.server: random_name
-      lazygate.time.minimumOnline: 2m
-      lazygate.time.inactivityThreshold: 5m
-      lazygate.queue.try: wait,kick
+      lazygate.allocation.server: random_name
+      lazygate.allocation.time.minimumOnline: 2m
+      lazygate.allocation.time.inactivityThreshold: 5m
+      lazygate.queues: wait,kick
       lazygate.queue.wait.timeout: 10s
       lazygate.queue.wait.pingInterval: 2s
-      lazygate.queue.kick.starting: random_name is currently starting!
+      lazygate.queue.kick.reason: random_name is currently starting!
 ```
 
 **Gate config:**
@@ -84,12 +87,15 @@ In this example, the `random_name` server will correspond to the `minecraft-serv
 
 **Enviroment Variables for Gate**
 ```sh
-LAZYGATE_PROVIDER="pufferpanel"
-LAZYGATE_PUFFERPANEL_URL="<url>"
-LAZYGATE_PUFFERPANEL_CLIENTID="<clientid>"
-LAZYGATE_PUFFERPANEL_CLIENTSECRET="<clientsecret>"
+LAZYGATE_PLUGIN_PROVIDER="pufferpanel"
+LAZYGATE_PLUGIN_NAMESPACE="default"
+LAZYGATE_PROVIDER_PUFFERPANEL_BASEURL="<url>"
+LAZYGATE_PROVIDER_PUFFERPANEL_CLIENTID="<clientid>"
+LAZYGATE_PROVIDER_PUFFERPANEL_CLIENTSECRET="<clientsecret>"
+LAZYGATE_PROVIDER_PUFFERPANEL_CONFIGFILEPATH="lazygate.json"
 ```
-***URL:*** The Url from pufferpanel e.g. `https://panel.example.com/`
+
+***URL:*** The Url from pufferpanel e.g. `https://panel.example.com`
 
 ***CLIENTID & CLIENTSECRET:*** The Client ID and Client Secret can you generate from Pufferpanel. Account (Top Right) -> OAuth2 Client -> Create New OAuth Client
 
@@ -109,15 +115,15 @@ config:
 Create a `lazygate.json` file inside pufferpanel files:
 ```json
 {
-  "lazygate.server": "random_name"
-  "lazygate.time.minimumOnline": "2m"
-  "lazygate.time.inactivityThreshold": "5m"
-  "lazygate.queue.try": "wait,kick"
-  "lazygate.queue.wait.timeout": "10s"
-  "lazygate.queue.wait.pingInterval": "2s"
-  "lazygate.queue.kick.starting": "random_name is currently starting!"
+  "lazygate.allocation.server": "random_name",
+  "lazygate.allocation.time.minimumOnline": "2m",
+  "lazygate.allocation.time.inactivityThreshold": "5m",
+  "lazygate.queues": "wait,kick",
+  "lazygate.queue.wait.timeout": "10s",
+  "lazygate.queue.wait.pingInterval": "2s",
+  "lazygate.queue.kick.reason": "random_name is currently starting!"
 }
 ```
 **Extras**
 
-If you running your Gate Server also inside Docker on the same host as Pufferpanel you have to pass your pufferpanel domain as extrahost
+If you're running your Gate Server also inside Docker on the same host as Pufferpanel you have to pass your pufferpanel domain as extrahost.

@@ -5,7 +5,6 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
-	"github.com/kasefuchs/lazygate/pkg/config/allocation"
 )
 
 // Allocation internal data in Docker context.
@@ -22,10 +21,6 @@ func (p *Provider) itemList() ([]*item, error) {
 	}
 
 	for _, cnt := range containerList {
-		if _, err := allocation.ParseLabels(cnt.Labels); err != nil {
-			continue
-		}
-
 		items = append(items, &item{
 			container: &cnt,
 		})

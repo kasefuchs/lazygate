@@ -38,7 +38,7 @@ func (r *Registry) Refresh(namespace string) {
 			continue
 		}
 
-		cfg, err := alloc.Config()
+		cfg, err := provider.ParseAllocationConfig(alloc)
 		if err != nil {
 			continue
 		}

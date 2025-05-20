@@ -2,10 +2,12 @@ package plugin
 
 import (
 	"context"
+	"fmt"
 	"math"
 
+	"github.com/kasefuchs/lazygate/pkg/utils"
+
 	"github.com/go-logr/logr"
-	pconfig "github.com/kasefuchs/lazygate/pkg/config/plugin"
 	"github.com/kasefuchs/lazygate/pkg/provider"
 	"github.com/kasefuchs/lazygate/pkg/queue"
 	"github.com/kasefuchs/lazygate/pkg/registry"
@@ -25,7 +27,7 @@ type Plugin struct {
 	log       logr.Logger          // Plugin logger.
 	proxy     *proxy.Proxy         // Gate proxy instance.
 	queues    *queue.Repository    // Plugin queues repository.
-	config    *pconfig.Config      // Plugin configuration.
+	config    *Config              // Plugin configuration.
 	options   *Options             // Plugin options.
 	registry  *registry.Registry   // Plugin registry.
 	provider  provider.Provider    // Allocation provider.
@@ -58,25 +60,35 @@ func NewProxyPlugin(options ...*Options) proxy.Plugin {
 
 // initConfig loads plugin config.
 func (p *Plugin) initConfig() error {
-	var err error
-	p.config, err = p.options.ConfigLoader()
-
-	return err
-}
-
-// initProvider initializes server provider.
-func (p *Plugin) initProvider() error {
-	var err error
-	p.provider, err = p.options.ProviderSelector()
+	cfg, err := utils.ParseEnv(&Config{}, utils.ChildEnvPrefix("plugin"))
 	if err != nil {
 		return err
 	}
 
-	opt := &provider.InitOptions{
-		Ctx: p.ctx,
+	p.config = cfg.(*Config)
+	return nil
+}
+
+// initProvider initializes server provider.
+func (p *Plugin) initProvider() error {
+	for _, prv := range p.options.Providers {
+		if prv.Name() != p.config.Provider {
+			continue
+		}
+
+		cfg, err := utils.ParseEnv(prv.DefaultConfig(), utils.ChildEnvPrefix("provider", prv.Name()))
+		if err != nil {
+			return err
+		}
+
+		p.provider = prv
+		return p.provider.Init(&provider.InitOptions{
+			Ctx:    p.ctx,
+			Config: cfg,
+		})
 	}
 
-	return p.provider.Init(opt)
+	return fmt.Errorf("no such provider %s", p.config.Provider)
 }
 
 // initRegistry initializes new registry.
@@ -96,17 +108,12 @@ func (p *Plugin) initScheduler() error {
 
 // initQueues initializes player queues.
 func (p *Plugin) initQueues() error {
-	queues, err := p.options.QueuesSelector()
-	if err != nil {
-		return err
-	}
-
 	opts := &queue.InitOptions{
 		Proxy: p.proxy,
 	}
 
 	p.queues = queue.NewRepository()
-	for _, q := range queues {
+	for _, q := range p.options.Queues {
 		if err := q.Init(opts); err != nil {
 			return err
 		}

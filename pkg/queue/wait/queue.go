@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/traefik/paerser/types"
+
 	"github.com/kasefuchs/lazygate/pkg/queue"
 	"github.com/kasefuchs/lazygate/pkg/utils"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
@@ -27,12 +29,20 @@ func (q *Queue) Init(opts *queue.InitOptions) error {
 	return nil
 }
 
+func (q *Queue) DefaultTicketConfig() interface{} {
+	return &TicketConfig{
+		Timeout:      types.Duration(25 * time.Second),
+		PingInterval: types.Duration(3 * time.Second),
+	}
+}
+
 func (q *Queue) Enter(ticket *queue.Ticket) bool {
 	pcfg := q.proxy.Config()
 	pctx := ticket.Player.Context()
+	tcfg := ticket.Config.(*TicketConfig)
 
-	ctx, cancel := context.WithTimeout(pctx, time.Duration(ticket.Config.Queue.Wait.Timeout))
-	utils.Tick(ctx, time.Duration(ticket.Config.Queue.Wait.PingInterval), func() {
+	ctx, cancel := context.WithTimeout(pctx, time.Duration(tcfg.Timeout))
+	utils.Tick(ctx, time.Duration(tcfg.PingInterval), func() {
 		if ticket.Entry.Ping(ctx, pcfg) {
 			cancel()
 		}

@@ -1,4 +1,4 @@
-package types
+package kick
 
 import (
 	"go.minekube.com/common/minecraft/component"

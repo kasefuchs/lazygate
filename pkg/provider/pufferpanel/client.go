@@ -1,74 +1,202 @@
 package pufferpanel
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
-	"os"
 	"strings"
 	"time"
+
+	"github.com/pufferpanel/pufferpanel/v3"
+	"github.com/pufferpanel/pufferpanel/v3/models"
+	"github.com/pufferpanel/pufferpanel/v3/oauth2"
 )
 
 type Client struct {
-	baseUrl       string
-	client_id     string
-	client_secret string
-	token         OAuth2Token
-	expires       time.Time
+	ctx            context.Context
+	baseUrl        string
+	clientId       string
+	clientSecret   string
+	token          *oauth2.TokenResponse
+	tokenExpiresAt time.Time
 }
 
-type OAuth2Token struct {
-	Access_token string  `json:"access_token"`
-	Expires_in   float64 `json:"expires_in"`
-	Scope        string  `json:"scope"`
-	Token_type   string  `json:"token_type"`
-}
-
-func NewClient() (*Client, error) {
-	baseUrl := os.Getenv("LAZYGATE_PUFFERPANEL_URL")
-	client_id := os.Getenv("LAZYGATE_PUFFERPANEL_CLIENTID")
-	client_secret := os.Getenv("LAZYGATE_PUFFERPANEL_CLIENTSECRET")
+func NewClient(ctx context.Context, baseUrl, clientId, clientSecret string) *Client {
 	return &Client{
-		baseUrl:       strings.TrimSpace(baseUrl),
-		client_id:     strings.TrimSpace(client_id),
-		client_secret: strings.TrimSpace(client_secret),
-	}, nil
+		ctx:          ctx,
+		baseUrl:      baseUrl,
+		clientId:     clientId,
+		clientSecret: clientSecret,
+	}
 }
 
-func (client *Client) newToken() error {
-	var token OAuth2Token
-	data := url.Values{}
-	_time := time.Now()
+func (c *Client) RequestToken() (*oauth2.TokenResponse, error) {
+	form := url.Values{
+		"client_id":     {c.clientId},
+		"client_secret": {c.clientSecret},
+		"grant_type":    {"client_credentials"},
+	}
 
-	data.Set("client_id", client.client_id)
-	data.Set("client_secret", client.client_secret)
-	data.Set("grant_type", "client_credentials")
-	resp, err := http.PostForm(client.baseUrl+"oauth2/token", data)
+	req, err := http.NewRequestWithContext(c.ctx, http.MethodPost, fmt.Sprintf("%s/oauth2/token", c.baseUrl), strings.NewReader(form.Encode()))
+	if err != nil {
+		return nil, fmt.Errorf("creating token request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("executing token request: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	var token oauth2.TokenResponse
+	if err := json.NewDecoder(resp.Body).Decode(&token); err != nil {
+		return nil, fmt.Errorf("decoding token response: %w", err)
+	}
+
+	return &token, nil
+}
+
+func (c *Client) RenewToken() (*oauth2.TokenResponse, error) {
+	if c.token != nil && time.Now().Before(c.tokenExpiresAt) {
+		return c.token, nil
+	}
+
+	tok, err := c.RequestToken()
+	if err != nil {
+		return nil, err
+	}
+
+	c.token = tok
+	c.tokenExpiresAt = time.Now().Add(time.Second * time.Duration(tok.ExpiresIn))
+
+	return c.token, nil
+}
+
+func (c *Client) ServerStop(id string) error {
+	token, err := c.RenewToken()
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+
+	req, err := http.NewRequestWithContext(c.ctx, http.MethodPost, fmt.Sprintf("%s/api/servers/%s/stop", c.baseUrl, id), nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("creating server stop request: %w", err)
 	}
-	err = json.Unmarshal(body, &token)
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", token.TokenType, token.AccessToken))
+
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return err
+		return fmt.Errorf("executing server stop request: %w", err)
 	}
-	client.expires = _time.Add(time.Second * time.Duration(token.Expires_in))
-	client.token = token
+	defer func() { _ = resp.Body.Close() }()
+
 	return nil
 }
 
-func (client *Client) getToken() (*OAuth2Token, error) {
-	if time.Now().Compare(client.expires) > 0 {
-		err := client.newToken()
-		if err != nil {
-			return nil, err
-		}
+func (c *Client) ServerStart(id string) error {
+	token, err := c.RenewToken()
+	if err != nil {
+		return err
 	}
-	token := client.token
-	return &token, nil
+
+	req, err := http.NewRequestWithContext(c.ctx, http.MethodPost, fmt.Sprintf("%s/api/servers/%s/start", c.baseUrl, id), nil)
+	if err != nil {
+		return fmt.Errorf("creating server start request: %w", err)
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", token.TokenType, token.AccessToken))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("executing server start request: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	return nil
+}
+
+func (c *Client) ServerStatus(id string) (*pufferpanel.ServerRunning, error) {
+	token, err := c.RenewToken()
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequestWithContext(c.ctx, http.MethodGet, fmt.Sprintf("%s/api/servers/%s/status", c.baseUrl, id), nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating server status request: %w", err)
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", token.TokenType, token.AccessToken))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("executing server status request: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var status *pufferpanel.ServerRunning
+	if err := json.Unmarshal(body, &status); err != nil {
+		return nil, err
+	}
+
+	return status, nil
+}
+
+func (c *Client) ServerSearch() (*models.ServerSearchResponse, error) {
+	token, err := c.RenewToken()
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequestWithContext(c.ctx, http.MethodGet, fmt.Sprintf("%s/api/servers", c.baseUrl), nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating server search request: %w", err)
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", token.TokenType, token.AccessToken))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("executing server search request: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	var search *models.ServerSearchResponse
+	if err := json.Unmarshal(body, &search); err != nil {
+		return nil, err
+	}
+
+	return search, nil
+}
+
+func (c *Client) ReadServerFile(id, path string) ([]byte, error) {
+	token, err := c.RenewToken()
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequestWithContext(c.ctx, http.MethodGet, fmt.Sprintf("%s/api/servers/%s/file/%s", c.baseUrl, id, path), nil)
+	if err != nil {
+		return nil, fmt.Errorf("creating read server file request: %w", err)
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("%s %s", token.TokenType, token.AccessToken))
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("executing read server file request: %w", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	return io.ReadAll(resp.Body)
 }
