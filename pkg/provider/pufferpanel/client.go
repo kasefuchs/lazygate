@@ -150,12 +150,16 @@ func (c *Client) ServerStatus(id string) (*pufferpanel.ServerRunning, error) {
 }
 
 func (c *Client) ServerSearch() (*models.ServerSearchResponse, error) {
+	return c.serverSearch(1)
+}
+
+func (c *Client) serverSearch(page uint) (*models.ServerSearchResponse, error) {
 	token, err := c.RenewToken()
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequestWithContext(c.ctx, http.MethodGet, fmt.Sprintf("%s/api/servers", c.baseUrl), nil)
+	req, err := http.NewRequestWithContext(c.ctx, http.MethodGet, fmt.Sprintf("%s/api/servers?page=%d&limit=100", c.baseUrl, page), nil)
 	if err != nil {
 		return nil, fmt.Errorf("creating server search request: %w", err)
 	}
@@ -175,6 +179,11 @@ func (c *Client) ServerSearch() (*models.ServerSearchResponse, error) {
 	var search *models.ServerSearchResponse
 	if err := json.Unmarshal(body, &search); err != nil {
 		return nil, err
+	}
+	if int64(search.Metadata.Paging.Size*page) < search.Metadata.Paging.Total {
+		var extraSearch *models.ServerSearchResponse
+		extraSearch, err = c.serverSearch(page + 1)
+		search.Servers = append(search.Servers, extraSearch.Servers...)
 	}
 
 	return search, nil
