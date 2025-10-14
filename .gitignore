@@ -1,22 +1,24 @@
-# ---> Go
-# Binaries for programs and plugins
+# --- IDE / Editor ---
+# JetBrains
+.idea/
+*.iml
+
+# VSCode
+.vscode/*
+!.vscode/tasks.json
+
+# --- Python ---
+.venv/
+__pycache__/
+
+# --- MkDocs ---
+.cache/
+docs/build/
+
+# --- Go ---
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
 *.test
-
-# ---> ProtoBuf
-# Generated files
-*.pb.go
-
-# ---> Custom
-# Integrated development environment
-.idea/
-*.iml
-.vs/
-.vscode/
-
-# Mac OS files
-.DS_Store/

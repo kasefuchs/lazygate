@@ -1,0 +1,5 @@
+mkdocs==1.6.1
+mkdocs-material==9.6.21
+pillow==11.3.0
+cairosvg==2.8.2
+pur==7.3.3
