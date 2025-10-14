@@ -52,7 +52,7 @@ jobs:
             ghcr.io/${{ github.repository }}
           tags: |
             type=raw,value=latest
-            type=ref,event=push
+            type=ref,event=branch
 
       - name: Build and push Docker image
         id: push
