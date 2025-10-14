@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"math"
 
-	"github.com/kasefuchs/lazygate/pkg/utils"
-
 	"github.com/go-logr/logr"
 	"github.com/kasefuchs/lazygate/pkg/provider"
 	"github.com/kasefuchs/lazygate/pkg/queue"
 	"github.com/kasefuchs/lazygate/pkg/registry"
 	"github.com/kasefuchs/lazygate/pkg/scheduler"
+	"github.com/kasefuchs/lazygate/pkg/utils"
 	"github.com/robinbraemer/event"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
@@ -60,7 +59,7 @@ func NewProxyPlugin(options ...*Options) proxy.Plugin {
 
 // initConfig loads plugin config.
 func (p *Plugin) initConfig() error {
-	cfg, err := utils.ParseEnv(&Config{}, utils.ChildEnvPrefix("plugin"))
+	cfg, err := utils.ParseEnv(DefaultConfig(), utils.ChildEnvPrefix("plugin"))
 	if err != nil {
 		return err
 	}

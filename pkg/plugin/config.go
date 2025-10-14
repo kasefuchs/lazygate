@@ -1,6 +1,13 @@
 package plugin
 
 type Config struct {
-	Provider  string // Provider to use.
-	Namespace string // Namespace of this proxy.
+	Provider  string `validate:"required"` // Provider to use.
+	Namespace string `validate:"required"` // Namespace of this proxy.
+}
+
+func DefaultConfig() *Config {
+	return &Config{
+		Provider:  "docker",
+		Namespace: "default",
+	}
 }
