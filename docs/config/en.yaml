@@ -10,6 +10,9 @@ site_dir: ../build/en
 
 nav:
   - Home: index.md
+  - Installation:
+      - Docker: install/docker.md
+      - Plugin: install/plugin.md
 
 extra:
   alternate:

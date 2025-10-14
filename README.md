@@ -7,8 +7,7 @@
 
 ## About <a name = "about"></a>
 
-LazyGate is a [Gate proxy](https://github.com/minekube/gate) plugin that shuts down your Minecraft server when it's idle
-and wakes it up when players connect.
+**LazyGate** is a [Gate proxy](https://github.com/minekube/gate) plugin that automatically manages the uptime of your Minecraft server. It stops the server when idle and starts it again when players connect, helping save resources while keeping the network available.
 
 ## Getting Started <a name = "getting_started"></a>
 

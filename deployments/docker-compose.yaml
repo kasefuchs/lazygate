@@ -21,8 +21,8 @@ services:
     ports:
       - "25565:25565"
     volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:rw"
-      - "../configs/gate.docker.yaml:/config.yml:ro"
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - ../configs/gate.docker.yaml:/config.yml:ro
     networks:
       - minecraft
     env_file:
@@ -41,7 +41,7 @@ services:
       lazygate.queue.wait.pingInterval: 2s
       lazygate.queue.kick.reason: Notorious is currently starting!
     volumes:
-      - "notorious:/data"
+      - notorious:/data
     environment:
       <<: *minecraft-server-environment
       CUSTOM_SERVER_PROPERTIES: |
@@ -62,7 +62,7 @@ services:
       lazygate.queue.wait.pingInterval: 2s
       lazygate.queue.kick.reason: Luminescence is currently starting!
     volumes:
-      - "luminescence:/data"
+      - luminescence:/data
     environment:
       <<: *minecraft-server-environment
       CUSTOM_SERVER_PROPERTIES: |
