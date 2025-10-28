@@ -33,20 +33,7 @@ func (r *Registry) Refresh(namespace string) {
 	r.Clear()
 
 	for _, srv := range r.proxy.Servers() {
-		alloc, err := r.provider.AllocationGet(srv)
-		if err != nil {
-			continue
-		}
-
-		cfg, err := provider.ParseAllocationConfig(alloc)
-		if err != nil {
-			continue
-		}
-
-		if cfg.Namespace == namespace {
-			ent := NewEntry(srv, alloc)
-			r.EntryRegister(ent)
-		}
+		r.RegisterServer(srv, namespace)
 	}
 }
 
@@ -64,6 +51,24 @@ func (r *Registry) EntryList() []*Entry {
 	}
 
 	return res
+}
+
+// Add Server to registry
+func (r *Registry) RegisterServer(srv proxy.RegisteredServer, namespace string) {
+	alloc, err := r.provider.AllocationGet(srv)
+	if err != nil {
+		return
+	}
+
+	cfg, err := provider.ParseAllocationConfig(alloc)
+	if err != nil {
+		return
+	}
+
+	if cfg.Namespace == namespace {
+		ent := NewEntry(srv, alloc)
+		r.EntryRegister(ent)
+	}
 }
 
 // EntryRegister registers new entry to registry.

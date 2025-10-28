@@ -11,7 +11,7 @@ require (
 	github.com/robinbraemer/event v0.1.1
 	github.com/traefik/paerser v0.2.2
 	go.minekube.com/common v0.3.0
-	go.minekube.com/gate v0.57.0
+	go.minekube.com/gate v0.58.0
 )
 
 require (
