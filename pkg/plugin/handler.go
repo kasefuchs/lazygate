@@ -66,3 +66,8 @@ func (p *Plugin) onServerPreConnectEvent(event *proxy.ServerPreConnectEvent) {
 		}
 	}
 }
+
+func (p *Plugin) onServerRegistrationEvent(event *proxy.ServerRegisteredEvent) {
+	srv := event.Server()
+	p.registry.RegisterServer(srv, p.config.Namespace)
+}

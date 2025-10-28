@@ -129,6 +129,7 @@ func (p *Plugin) initHandlers() error {
 
 	event.Subscribe(eventMgr, math.MaxInt, p.onDisconnectEvent)
 	event.Subscribe(eventMgr, math.MaxInt, p.onServerPreConnectEvent)
+	event.Subscribe(eventMgr, math.MaxInt, p.onServerRegistrationEvent)
 
 	return nil
 }
