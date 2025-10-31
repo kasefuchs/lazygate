@@ -3,10 +3,9 @@ package nomad
 import (
 	"fmt"
 
-	"github.com/kasefuchs/lazygate/pkg/utils"
-
 	"github.com/hashicorp/nomad/api"
 	"github.com/kasefuchs/lazygate/pkg/provider"
+	"github.com/kasefuchs/lazygate/pkg/utils"
 )
 
 var _ provider.Allocation = (*Allocation)(nil)

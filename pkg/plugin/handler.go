@@ -3,10 +3,9 @@ package plugin
 import (
 	"time"
 
-	"github.com/kasefuchs/lazygate/pkg/utils"
-
 	"github.com/kasefuchs/lazygate/pkg/provider"
 	"github.com/kasefuchs/lazygate/pkg/queue"
+	"github.com/kasefuchs/lazygate/pkg/utils"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 

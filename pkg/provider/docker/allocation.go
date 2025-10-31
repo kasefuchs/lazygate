@@ -3,11 +3,10 @@ package docker
 import (
 	"context"
 
-	"github.com/kasefuchs/lazygate/pkg/utils"
-
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/kasefuchs/lazygate/pkg/provider"
+	"github.com/kasefuchs/lazygate/pkg/utils"
 )
 
 var _ provider.Allocation = (*Allocation)(nil)

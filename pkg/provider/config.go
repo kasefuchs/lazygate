@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/kasefuchs/lazygate/pkg/utils"
-
 	"github.com/traefik/paerser/types"
 )
 

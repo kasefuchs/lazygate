@@ -183,6 +183,9 @@ func (c *Client) serverSearch(page uint) (*models.ServerSearchResponse, error) {
 	if int64(search.Metadata.Paging.Size*page) < search.Metadata.Paging.Total {
 		var extraSearch *models.ServerSearchResponse
 		extraSearch, err = c.serverSearch(page + 1)
+		if err != nil {
+			return nil, fmt.Errorf("server search page %d: %w", page+1, err)
+		}
 		search.Servers = append(search.Servers, extraSearch.Servers...)
 	}
 
