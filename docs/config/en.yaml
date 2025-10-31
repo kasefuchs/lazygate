@@ -1,5 +1,5 @@
 ---
-site_url: https://kasefuchs.github.io/lazygate/en/
+site_url: https://lazygate.kasefuchs.net/en/
 site_name: LazyGate
 
 repo_url: https://github.com/kasefuchs/lazygate
@@ -17,7 +17,7 @@ nav:
 extra:
   alternate:
     - name: English
-      link: /lazygate/en/
+      link: /en/
       lang: en
 
 theme:
