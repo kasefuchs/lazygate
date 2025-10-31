@@ -10,7 +10,7 @@ title: Installation from Docker image
 LazyGate provides official Docker images hosted on multiple registries:
 
 | Registry                                                                                            | Image                        |
-|-----------------------------------------------------------------------------------------------------|------------------------------|
+| --------------------------------------------------------------------------------------------------- | ---------------------------- |
 | [Docker Hub](https://hub.docker.com/r/kasefuchs/lazygate/)                                          | `kasefuchs/lazygate`         |
 | [GitHub Container Registry](https://github.com/users/kasefuchs/packages/container/package/lazygate) | `ghcr.io/kasefuchs/lazygate` |
 
