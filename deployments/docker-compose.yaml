@@ -3,56 +3,53 @@ x-templates:
   minecraft-server-environment: &minecraft-server-environment
     EULA: true
     TYPE: limbo
-    LIMBO_BUILD: 46
+    LIMBO_BUILD: 59
 
   minecraft-server: &minecraft-server
     image: itzg/minecraft-server:latest
-    networks:
-      - minecraft
+    network_mode: host
     environment:
       <<: *minecraft-server-environment
 
 services:
   gate:
-    image: ghcr.io/kasefuchs/lazygate:latest
+    image: kasefuchs/lazygate:latest
+    network_mode: host
     build:
       context: ..
       dockerfile: build/Dockerfile
-    ports:
-      - "25565:25565"
+
+  limbo:
+    <<: *minecraft-server
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:rw
-      - ../configs/gate.docker.yaml:/config.yml:ro
-    networks:
-      - minecraft
-    env_file:
-      - ../configs/gate.docker.env
+      - limbo:/data
+    environment:
+      <<: *minecraft-server-environment
+      CUSTOM_SERVER_PROPERTIES: |
+        server-port=33018
+        tab-header=Limbo
+        bungeecord=false
+        allow-flight=true
 
   notorious:
     <<: *minecraft-server
-    ports:
-      - "33019:30000"
     labels:
       lazygate.allocation.server: notorious
       lazygate.allocation.time.minimumOnline: 30s
       lazygate.allocation.time.inactivityThreshold: 30s
-      lazygate.allocation.queues: wait,kick
-      lazygate.queue.wait.timeout: 10s
-      lazygate.queue.wait.pingInterval: 2s
-      lazygate.queue.kick.reason: Notorious is currently starting!
+      lazygate.allocation.queues: send
     volumes:
       - notorious:/data
     environment:
       <<: *minecraft-server-environment
       CUSTOM_SERVER_PROPERTIES: |
+        server-port=33019
         tab-header=Notorious
         bungeecord=false
         allow-flight=true
 
   luminescence:
     <<: *minecraft-server
-    ports:
-      - "33020:30000"
     labels:
       lazygate.allocation.server: luminescence
       lazygate.allocation.time.minimumOnline: 2m
@@ -66,13 +63,12 @@ services:
     environment:
       <<: *minecraft-server-environment
       CUSTOM_SERVER_PROPERTIES: |
+        server-port=33020
         tab-header=Luminescence
         bungeecord=false
         allow-flight=true
 
 volumes:
+  limbo: {}
   notorious: {}
   luminescence: {}
-
-networks:
-  minecraft: {}

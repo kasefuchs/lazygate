@@ -20,7 +20,7 @@ As a Gate plugin, LazyGate runs inside the proxy and intercepts incoming connect
 - Runs entirely as a [Gate proxy](https://github.com/minekube/gate) plugin
 - Automatically stops the backend Minecraft server when idle and starts it when players connect
 - Supports multiple server providers out of the box: **Docker**, **Nomad**, and **PufferPanel**
-- Provides multiple built-in player queues: **wait** and **kick**
+- Provides multiple built-in player queues: **kick**, **send** and **wait**
 - Plugin system for custom providers and queue implementations
 
 ## :material-license: License

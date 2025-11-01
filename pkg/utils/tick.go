@@ -18,3 +18,18 @@ func Tick(ctx context.Context, interval time.Duration, fn func()) {
 		}
 	}
 }
+
+// WaitUntil runs a function at interval until it returns true or the context times out.
+func WaitUntil(pctx context.Context, interval time.Duration, condition func(ctx context.Context) bool) bool {
+	ctx, cancel := context.WithCancel(pctx)
+	defer cancel()
+
+	ok := false
+	Tick(ctx, interval, func() {
+		if ok = condition(ctx); ok {
+			cancel()
+		}
+	})
+
+	return ok
+}

@@ -2,8 +2,9 @@
 config:
   bind: 0.0.0.0:25565
   servers:
-    notorious: notorious:30000
-    luminescence: luminescence:30000
+    limbo: localhost:33018
+    notorious: localhost:33019
+    luminescence: localhost:33020
   try:
     - notorious
     - luminescence

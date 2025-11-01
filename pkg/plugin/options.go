@@ -7,6 +7,7 @@ import (
 	"github.com/kasefuchs/lazygate/pkg/provider/pufferpanel"
 	"github.com/kasefuchs/lazygate/pkg/queue"
 	"github.com/kasefuchs/lazygate/pkg/queue/kick"
+	"github.com/kasefuchs/lazygate/pkg/queue/send"
 	"github.com/kasefuchs/lazygate/pkg/queue/wait"
 )
 
@@ -20,8 +21,9 @@ type Options struct {
 func DefaultOptions() *Options {
 	return &Options{
 		Queues: []queue.Queue{
-			&wait.Queue{},
 			&kick.Queue{},
+			&send.Queue{},
+			&wait.Queue{},
 		},
 		Providers: []provider.Provider{
 			&docker.Provider{},

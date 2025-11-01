@@ -1,4 +1,4 @@
-package wait
+package send
 
 import (
 	"context"
@@ -12,7 +12,7 @@ import (
 
 var _ queue.Queue = (*Queue)(nil)
 
-const name = "wait"
+const name = "send"
 
 type Queue struct {
 	proxy *proxy.Proxy
@@ -30,6 +30,7 @@ func (q *Queue) Init(opts *queue.InitOptions) error {
 
 func (q *Queue) DefaultTicketConfig() interface{} {
 	return &TicketConfig{
+		To:           "limbo",
 		Timeout:      types.Duration(25 * time.Second),
 		PingInterval: types.Duration(3 * time.Second),
 	}
@@ -42,6 +43,12 @@ func (q *Queue) Enter(ticket *queue.Ticket) bool {
 
 	ctx, cancel := context.WithTimeout(pctx, time.Duration(tcfg.Timeout))
 	defer cancel()
+
+	if to := q.proxy.Server(tcfg.To); to != nil {
+		go ticket.Player.CreateConnectionRequest(to).ConnectWithIndication(ctx)
+	} else {
+		return false
+	}
 
 	return utils.WaitUntil(ctx, time.Duration(tcfg.PingInterval), func(ctx context.Context) bool {
 		return ticket.Entry.Ping(ctx, pcfg)
