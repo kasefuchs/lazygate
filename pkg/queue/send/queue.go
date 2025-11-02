@@ -31,8 +31,8 @@ func (q *Queue) Init(opts *queue.InitOptions) error {
 func (q *Queue) DefaultTicketConfig() interface{} {
 	return &TicketConfig{
 		To:           "limbo",
-		Timeout:      types.Duration(25 * time.Second),
-		PingInterval: types.Duration(3 * time.Second),
+		Timeout:      types.Duration(2 * time.Minute),
+		PingInterval: types.Duration(5 * time.Second),
 	}
 }
 

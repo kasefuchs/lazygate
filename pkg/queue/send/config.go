@@ -2,9 +2,9 @@ package send
 
 import "github.com/traefik/paerser/types"
 
-// TicketConfig represents wait queue configuration.
+// TicketConfig represents send queue configuration.
 type TicketConfig struct {
-	PingInterval types.Duration // Interval to ping backend server with. Keep it lower than half of timeout.
-	Timeout      types.Duration // Maximum amount of time to wait for server start. Must be less than Minecraft timeout of 30 seconds.
+	PingInterval types.Duration // Interval to ping backend server with.
+	Timeout      types.Duration // Maximum amount of time to wait for server start.
 	To           string         // Temporary server to send the player while the target starts.
 }
