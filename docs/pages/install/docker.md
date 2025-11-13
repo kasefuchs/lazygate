@@ -1,11 +1,11 @@
 ---
-icon: material/docker
+icon: lucide/container
 title: Installation from Docker image
 ---
 
-# :material-docker: Installation from Docker image
+# :lucide-container: Installation from Docker image
 
-## :material-archive-outline: Registries
+## :lucide-file-stack: Registries
 
 LazyGate provides official Docker images hosted on multiple registries:
 
@@ -14,7 +14,7 @@ LazyGate provides official Docker images hosted on multiple registries:
 | [Docker Hub](https://hub.docker.com/r/kasefuchs/lazygate/)                                          | `kasefuchs/lazygate`         |
 | [GitHub Container Registry](https://github.com/users/kasefuchs/packages/container/package/lazygate) | `ghcr.io/kasefuchs/lazygate` |
 
-## :material-rocket-launch: Usage
+## :lucide-rocket: Usage
 
 === "Docker Compose"
 

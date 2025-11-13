@@ -5,9 +5,9 @@ hide:
   - navigation
 ---
 
-# :material-home: Home
+# :lucide-home: Home
 
-## :material-magnify: What is LazyGate?
+## :lucide-search: What is LazyGate?
 
 **LazyGate** is a [Gate proxy](https://github.com/minekube/gate) plugin that automatically shuts down your Minecraft server when it’s idle and starts it again when players connect.
 
@@ -15,7 +15,7 @@ Some Minecraft servers, especially modded ones, use a huge amount of resources e
 
 As a Gate plugin, LazyGate runs inside the proxy and intercepts incoming connection attempts. When the backend server is offline, it starts it up and then seamlessly transfers the player once it’s ready, all without them noticing.
 
-## :material-feature-search-outline: Features
+## :lucide-sparkles: Features
 
 - Runs entirely as a [Gate proxy](https://github.com/minekube/gate) plugin
 - Automatically stops the backend Minecraft server when idle and starts it when players connect
@@ -23,6 +23,6 @@ As a Gate plugin, LazyGate runs inside the proxy and intercepts incoming connect
 - Provides multiple built-in player queues: **kick**, **send** and **wait**
 - Plugin system for custom providers and queue implementations
 
-## :material-license: License
+## :lucide-scale: License
 
 This project is licensed under the terms of the MIT license.

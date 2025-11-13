@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - docs/**
+      - requirements.txt
       - .github/workflows/docs.yaml
 
 jobs:
@@ -32,13 +33,7 @@ jobs:
 
       - name: Build documentation
         working-directory: docs
-        # language=sh
-        run: |
-          mkdir -p build/
-          cp pages/index.html build/
-          for file in config/*.yaml; do
-            mkdocs build --config-file "$file"
-          done
+        run: zensical build
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

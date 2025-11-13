@@ -1,11 +1,11 @@
 ---
-icon: material/power-plug
+icon: lucide/cable
 title: Installation as proxy plugin
 ---
 
-# :material-power-plug: Installation as proxy plugin
+# :lucide-cable: Installation as proxy plugin
 
-## :material-download: Installing
+## :lucide-download: Installing
 
 Add the `github.com/kasefuchs/lazygate` module to your project:
 
