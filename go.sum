@@ -178,8 +178,8 @@ github.com/hashicorp/go-multierror v1.1.1 h1:H5DkEtf6CXdFp0N0Em5UCwQpXMWke8IA0+l
 github.com/hashicorp/go-multierror v1.1.1/go.mod h1:iw975J/qwKPdAO1clOe2L8331t/9/fmwbPZ6JB6eMoM=
 github.com/hashicorp/go-rootcerts v1.0.2 h1:jzhAVGtqPKbwpyCPELlgNWhE1znq+qwJtW5Oi2viEzc=
 github.com/hashicorp/go-rootcerts v1.0.2/go.mod h1:pqUvnprVnM5bf7AOirdbb01K4ccR319Vf4pU3K5EGc8=
-github.com/hashicorp/nomad/api v0.0.0-20251121135227-3927ae0832d0 h1:T2EtDcLupQu0vJM17Vbr443TvoIWkB6jvewxAf7KaAQ=
-github.com/hashicorp/nomad/api v0.0.0-20251121135227-3927ae0832d0/go.mod h1:sldFTIgs+FsUeKU3LwVjviAIuksxD8TzDOn02MYwslE=
+github.com/hashicorp/nomad/api v0.0.0-20251121200041-ed062641bb2c h1:nSTdD8H31IkhuKxePAPEglXQBqb1/V47tmOF+zdMY48=
+github.com/hashicorp/nomad/api v0.0.0-20251121200041-ed062641bb2c/go.mod h1:sldFTIgs+FsUeKU3LwVjviAIuksxD8TzDOn02MYwslE=
 github.com/honeycombio/otel-config-go v1.17.0 h1:3/zig0L3IGnfgiCrEfAwBsM0rF57+TKTyJ/a8yqW2eM=
 github.com/honeycombio/otel-config-go v1.17.0/go.mod h1:g2mMdfih4sYKfXBtz2mNGvo3HiQYqX4Up4pdA8JOF2s=
 github.com/jellevandenhooff/dkim v0.0.0-20150330215556-f50fe3d243e1/go.mod h1:E0B/fFc00Y+Rasa88328GlI/XbtyysCtTHZS8h7IrBU=

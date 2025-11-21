@@ -6,7 +6,7 @@ require (
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/go-logr/logr v1.4.3
 	github.com/go-playground/validator/v10 v10.28.0
-	github.com/hashicorp/nomad/api v0.0.0-20251121135227-3927ae0832d0
+	github.com/hashicorp/nomad/api v0.0.0-20251121200041-ed062641bb2c
 	github.com/pufferpanel/pufferpanel/v3 v3.0.0-rc.15
 	github.com/robinbraemer/event v0.1.1
 	github.com/traefik/paerser v0.2.2
