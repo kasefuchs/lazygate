@@ -48,7 +48,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ${{ vars.DOCKER_USERNAME }}/${{ github.event.repository.name }}
+            ${{ github.actor }}/${{ github.event.repository.name }}
             ghcr.io/${{ github.repository }}
           tags: |
             type=raw,value=latest
