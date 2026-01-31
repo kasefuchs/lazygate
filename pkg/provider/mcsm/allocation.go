@@ -48,7 +48,8 @@ func (a *Allocation) ParseConfig(cfg interface{}, rootLabel string) (interface{}
 		return nil, err
 	}
 
-	cfg.Server = inst.Data.Config.Nickname
+	cfgtype := cfg.(*provider.AllocationConfig)
+	cfgtype.Server = inst.Data.Config.Nickname
 	// for _, tag := range inst.Data.Config.Tag {
 	// 	if strings.HasPrefix(tag, "lazy.name=") {
 	// 		cfg2.Server = tag[10 : len(tag)-1]
@@ -56,5 +57,6 @@ func (a *Allocation) ParseConfig(cfg interface{}, rootLabel string) (interface{}
 	// 	}
 	// }
 	// fill the rest with default options
-	return cfg, nil
+
+	return cfgtype, nil
 }
