@@ -5,7 +5,6 @@ import (
 	"github.com/kasefuchs/lazygate/pkg/provider/docker"
 	"github.com/kasefuchs/lazygate/pkg/provider/mcsm"
 	"github.com/kasefuchs/lazygate/pkg/provider/nomad"
-	"github.com/kasefuchs/lazygate/pkg/provider/pufferpanel"
 	"github.com/kasefuchs/lazygate/pkg/queue"
 	"github.com/kasefuchs/lazygate/pkg/queue/kick"
 	"github.com/kasefuchs/lazygate/pkg/queue/send"
@@ -29,7 +28,6 @@ func DefaultOptions() *Options {
 		Providers: []provider.Provider{
 			&docker.Provider{},
 			&nomad.Provider{},
-			&pufferpanel.Provider{},
 			&mcsm.Provider{},
 		},
 	}

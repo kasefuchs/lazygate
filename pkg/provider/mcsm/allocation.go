@@ -1,6 +1,8 @@
 package mcsm
 
 import (
+	"fmt"
+
 	"github.com/kasefuchs/lazygate/pkg/provider"
 )
 
@@ -13,33 +15,37 @@ type Allocation struct {
 	configFilePath string
 }
 
-func NewAllocation(client *Client, item *item, configFilePath string) *Allocation {
+func NewAllocation(client *Client, item *item) *Allocation {
 	return &Allocation{
-		item:           item,
-		client:         client,
-		configFilePath: configFilePath,
+		item:   item,
+		client: client,
 	}
 }
 
 func (a *Allocation) Stop() error {
-	return a.client.ServerStop(a.item.instance.Id)
+	return a.client.ServerStop(a.item.instance.Id, a.client.daemon_id)
 }
 
 func (a *Allocation) Start() error {
-	return a.client.ServerStart(a.item.instance.Id)
+	return a.client.ServerStart(a.item.instance.Id, a.client.daemon_id)
 }
 
 func (a *Allocation) State() provider.AllocationState {
-	status, err := a.client.ServerStatus(a.item.instance.Id)
+	inst, err := a.client.GetInstance(a.item.instance.Id, a.client.daemon_id)
 	if err != nil {
+		fmt.Errorf("failed to get isntance for state %v", err)
+	}
+	switch inst.Data.Status {
+	case 0:
+	case 1:
+		return provider.AllocationStateStopped
+	case 2:
+	case 3:
+		return provider.AllocationStateStarted
+	case -1:
 		return provider.AllocationStateUnknown
 	}
-
-	if status.Running {
-		return provider.AllocationStateStarted
-	}
-
-	return provider.AllocationStateStopped
+	return provider.AllocationStateUnknown
 }
 
 func (a *Allocation) ParseConfig(cfg interface{}, rootLabel string) (interface{}, error) {

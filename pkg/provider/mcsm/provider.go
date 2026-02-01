@@ -26,9 +26,7 @@ func (p *Provider) Name() string {
 }
 
 func (p *Provider) DefaultConfig() interface{} {
-	return &Config{
-		ConfigFilePath: "lazygate.json",
-	}
+	return &Config{}
 }
 
 func (p *Provider) initClient() {
@@ -74,7 +72,7 @@ func (p *Provider) AllocationList() ([]provider.Allocation, error) {
 
 	allocs := make([]provider.Allocation, len(items))
 	for i, it := range items {
-		allocs[i] = NewAllocation(p.client, it, p.config.ConfigFilePath)
+		allocs[i] = NewAllocation(p.client, it)
 	}
 
 	return allocs, nil

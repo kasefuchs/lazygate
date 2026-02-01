@@ -6,26 +6,36 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-
-	"github.com/pufferpanel/pufferpanel/v3"
 )
 
 type HeaderTransport struct {
-	Base    http.RoundTripper
 	Headers map[string]string
+	Apikey  string
 }
 
 func (h *HeaderTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	// Clone request to avoid modifying the original
-	newReq := req.Clone(req.Context())
-
-	// Inject default headers (only if not already set)
 	for key, value := range h.Headers {
-		if newReq.Header.Get(key) == "" {
-			newReq.Header.Set(key, value)
+		if req.Header.Get(key) == "" {
+			req.Header[key] = []string{value}
 		}
 	}
-	return h.Base.RoundTrip(newReq)
+	q := req.URL.Query()
+	q.Add("apikey", h.Apikey)
+	req.URL.RawQuery = q.Encode()
+
+	res, err := http.DefaultTransport.RoundTrip(req)
+	if err != nil {
+		return nil, err
+	}
+	if res.StatusCode != 200 {
+		defer res.Body.Close()
+		resp, errp := io.ReadAll(res.Body)
+		if errp != nil {
+			return nil, fmt.Errorf("Error reading io: %s", errp)
+		}
+		return nil, fmt.Errorf("%s\n%s", res.Status, string(resp))
+	}
+	return res, nil
 }
 
 type Client struct {
@@ -39,10 +49,10 @@ func NewClient(ctx context.Context, baseUrl, api_key string, daemon_id string) *
 	api_client := &http.Client{
 		Transport: &HeaderTransport{
 			Headers: map[string]string{
-				"apikey":           api_key,
 				"Content-Type":     "application/json; charset=utf-8",
 				"X-Requested-With": "XMLHttpRequest",
 			},
+			Apikey: api_key,
 		},
 	}
 	return &Client{
@@ -53,8 +63,8 @@ func NewClient(ctx context.Context, baseUrl, api_key string, daemon_id string) *
 	}
 }
 
-func (c *Client) ServerStop(id string) error {
-	req, err := http.NewRequestWithContext(c.ctx, http.MethodPost, fmt.Sprintf("%s/api/servers/%s/stop", c.base_url, id), nil)
+func (c *Client) ServerStop(id string, did string) error {
+	req, err := http.NewRequestWithContext(c.ctx, http.MethodGet, fmt.Sprintf("%s/api/protected_instance/stop?uuid=%s&daemonId=%s", c.base_url, id, did), nil)
 	if err != nil {
 		return fmt.Errorf("creating server stop request: %w", err)
 	}
@@ -68,9 +78,9 @@ func (c *Client) ServerStop(id string) error {
 	return nil
 }
 
-func (c *Client) ServerStart(id string) error {
+func (c *Client) ServerStart(id string, did string) error {
 
-	req, err := http.NewRequestWithContext(c.ctx, http.MethodPost, fmt.Sprintf("%s/api/servers/%s/start", c.base_url, id), nil)
+	req, err := http.NewRequestWithContext(c.ctx, http.MethodGet, fmt.Sprintf("%s/api/protected_instance/open?uuid=%s&daemonId=%s", c.base_url, id, did), nil)
 	if err != nil {
 		return fmt.Errorf("creating server start request: %w", err)
 	}
@@ -82,32 +92,6 @@ func (c *Client) ServerStart(id string) error {
 	defer func() { _ = resp.Body.Close() }()
 
 	return nil
-}
-
-func (c *Client) ServerStatus(id string) (*pufferpanel.ServerRunning, error) {
-
-	req, err := http.NewRequestWithContext(c.ctx, http.MethodGet, fmt.Sprintf("%s/api/servers/%s/status", c.base_url, id), nil)
-	if err != nil {
-		return nil, fmt.Errorf("creating server status request: %w", err)
-	}
-
-	resp, err := c.api_client.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("executing server status request: %w", err)
-	}
-	defer func() { _ = resp.Body.Close() }()
-
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-
-	var status *pufferpanel.ServerRunning
-	if err := json.Unmarshal(body, &status); err != nil {
-		return nil, err
-	}
-
-	return status, nil
 }
 
 func (c *Client) ServerSearch() (*InstanceSearch, error) {
