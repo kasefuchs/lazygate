@@ -3,9 +3,9 @@ package docker
 import (
 	"fmt"
 
+	"codeberg.org/kasefuchs/lazygate/pkg/provider"
 	"github.com/docker/docker/client"
 	"github.com/go-logr/logr"
-	"github.com/kasefuchs/lazygate/pkg/provider"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 

@@ -16,7 +16,7 @@
 Add the `lazygate` module to your project:
 
 ```sh
-go get github.com/kasefuchs/lazygate
+go get codeberg.org/kasefuchs/lazygate
 ```
 
 Include the plugin in your list of proxy plugins:
@@ -25,7 +25,7 @@ Include the plugin in your list of proxy plugins:
 package main
 
 import (
-	lazygate "github.com/kasefuchs/lazygate/pkg/plugin"
+	lazygate "codeberg.org/kasefuchs/lazygate/pkg/plugin"
 	"go.minekube.com/gate/cmd/gate"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )

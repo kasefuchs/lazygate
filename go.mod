@@ -1,4 +1,4 @@
-module github.com/kasefuchs/lazygate
+module codeberg.org/kasefuchs/lazygate
 
 go 1.24.1
 

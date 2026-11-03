@@ -1,7 +1,7 @@
 package queue
 
 import (
-	"github.com/kasefuchs/lazygate/pkg/registry"
+	"codeberg.org/kasefuchs/lazygate/pkg/registry"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )
 

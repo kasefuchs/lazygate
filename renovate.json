@@ -1,14 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "commitMessagePrefix": "⬆️ ",
+  "extends": ["github>home-operations/renovate-presets#8.1.0"],
   "packageRules": [
     {
-      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "matchUpdateTypes": ["patch"],
       "automerge": true,
-      "automergeStrategy": "squash",
-      "automergeSchedule": ["* 0-3 * * *"]
+      "automergeType": "pr",
+      "ignoreTests": true
     }
-  ],
-  "postUpdateOptions": ["gomodTidy"]
+  ]
 }

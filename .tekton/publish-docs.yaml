@@ -1,0 +1,82 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: publish-docs
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[push]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/on-path-change: "[.tekton/publish-docs.yaml, docs/***]"
+    pipelinesascode.tekton.dev/task: "[git-clone]"
+spec:
+  taskRunTemplate:
+    podTemplate:
+      securityContext:
+        fsGroup: 65532
+  workspaces:
+    - name: source
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    - name: basic-auth
+      secret:
+        secretName: "{{ git_auth_secret }}"
+  pipelineSpec:
+    workspaces:
+      - name: source
+      - name: basic-auth
+    tasks:
+      - name: fetch-repository
+        taskRef:
+          name: git-clone
+        workspaces:
+          - name: output
+            workspace: source
+          - name: basic-auth
+            workspace: basic-auth
+        params:
+          - name: url
+            value: "{{ repo_url }}"
+          - name: revision
+            value: "{{ revision }}"
+      - name: publish-docs
+        runAfter:
+          - fetch-repository
+        workspaces:
+          - name: source
+            workspace: source
+        taskSpec:
+          workspaces:
+            - name: source
+          steps:
+            - name: build-docs
+              image: joshooaj/zensical:v0.0.24
+              workingDir: $(workspaces.source.path)/docs
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 65532
+              script: |-
+                #!/usr/bin/env sh
+                set -eu
+                zensical build
+            - name: publish-pages
+              image: jfxs/wrangler:4.73
+              workingDir: $(workspaces.source.path)/docs/build
+              env:
+                - name: CLOUDFLARE_ACCOUNT_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: cloudflare-pages-credentials
+                      key: account-id
+                - name: CLOUDFLARE_API_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: cloudflare-pages-credentials
+                      key: api-token
+              script: |-
+                #!/usr/bin/env sh
+                set -eu
+                wrangler pages deploy . --project-name lazygate

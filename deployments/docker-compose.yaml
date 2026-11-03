@@ -1,16 +1,13 @@
----
 x-templates:
   minecraft-server-environment: &minecraft-server-environment
     EULA: true
     TYPE: limbo
     LIMBO_BUILD: 59
-
   minecraft-server: &minecraft-server
     image: itzg/minecraft-server:latest
     network_mode: host
     environment:
-      <<: *minecraft-server-environment
-
+      !!merge <<: *minecraft-server-environment
 services:
   gate:
     image: kasefuchs/lazygate:latest
@@ -18,21 +15,19 @@ services:
     build:
       context: ..
       dockerfile: build/Dockerfile
-
   limbo:
-    <<: *minecraft-server
+    !!merge <<: *minecraft-server
     volumes:
       - limbo:/data
     environment:
-      <<: *minecraft-server-environment
+      !!merge <<: *minecraft-server-environment
       CUSTOM_SERVER_PROPERTIES: |
         server-port=33018
         tab-header=Limbo
         bungeecord=false
         allow-flight=true
-
   notorious:
-    <<: *minecraft-server
+    !!merge <<: *minecraft-server
     labels:
       lazygate.allocation.server: notorious
       lazygate.allocation.time.minimumOnline: 30s
@@ -41,15 +36,14 @@ services:
     volumes:
       - notorious:/data
     environment:
-      <<: *minecraft-server-environment
+      !!merge <<: *minecraft-server-environment
       CUSTOM_SERVER_PROPERTIES: |
         server-port=33019
         tab-header=Notorious
         bungeecord=false
         allow-flight=true
-
   luminescence:
-    <<: *minecraft-server
+    !!merge <<: *minecraft-server
     labels:
       lazygate.allocation.server: luminescence
       lazygate.allocation.time.minimumOnline: 2m
@@ -61,13 +55,12 @@ services:
     volumes:
       - luminescence:/data
     environment:
-      <<: *minecraft-server-environment
+      !!merge <<: *minecraft-server-environment
       CUSTOM_SERVER_PROPERTIES: |
         server-port=33020
         tab-header=Luminescence
         bungeecord=false
         allow-flight=true
-
 volumes:
   limbo: {}
   notorious: {}

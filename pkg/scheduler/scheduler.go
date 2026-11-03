@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
+	"codeberg.org/kasefuchs/lazygate/pkg/provider"
+	"codeberg.org/kasefuchs/lazygate/pkg/registry"
+	"codeberg.org/kasefuchs/lazygate/pkg/utils"
 	"github.com/go-logr/logr"
-	"github.com/kasefuchs/lazygate/pkg/provider"
-	"github.com/kasefuchs/lazygate/pkg/registry"
-	"github.com/kasefuchs/lazygate/pkg/utils"
 )
 
 // Scheduler logger name.

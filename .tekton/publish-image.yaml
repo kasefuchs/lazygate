@@ -1,0 +1,89 @@
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: publish-image
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[push]"
+    pipelinesascode.tekton.dev/on-target-branch: "[refs/tags/v*]"
+    pipelinesascode.tekton.dev/cancel-in-progress: "true"
+spec:
+  params:
+    - name: semver_tag
+      value: "{{ cel: pac.git_tag.substring(1) }}"
+  taskRunTemplate:
+    podTemplate:
+      securityContext:
+        fsGroup: 65532
+  workspaces:
+    - name: source
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    - name: basic-auth
+      secret:
+        secretName: "{{ git_auth_secret }}"
+    - name: dockerconfig
+      secret:
+        secretName: container-registry-credentials
+  pipelineSpec:
+    params:
+      - name: semver_tag
+        type: string
+    workspaces:
+      - name: source
+      - name: basic-auth
+      - name: dockerconfig
+    tasks:
+      - name: fetch-repository
+        taskRef:
+          resolver: hub
+          params:
+            - name: catalog
+              value: git-clone
+            - name: name
+              value: git-clone
+            - name: version
+              value: "1.7.1"
+        workspaces:
+          - name: output
+            workspace: source
+          - name: basic-auth
+            workspace: basic-auth
+        params:
+          - name: url
+            value: "{{ repo_url }}"
+          - name: revision
+            value: "{{ revision }}"
+      - name: publish-image
+        runAfter:
+          - fetch-repository
+        params:
+          - name: tags
+            value: "latest,$(params.semver_tag),v$(params.semver_tag)"
+        workspaces:
+          - name: source
+            workspace: source
+          - name: dockerconfig
+            workspace: dockerconfig
+        taskSpec:
+          workspaces:
+            - name: source
+            - name: dockerconfig
+          steps:
+            - name: build-and-push
+              image: ghcr.io/ko-build/ko:latest
+              env:
+                - name: DOCKER_CONFIG
+                  value: $(workspaces.dockerconfig.path)
+                - name: KO_DOCKER_REPO
+                  value: codeberg.org/kasefuchs/lazygate
+              workingDir: $(workspaces.source.path)
+              script: |-
+                #!/usr/bin/env sh
+                set -eu
+                git config --global --add safe.directory "$(workspaces.source.path)"
+                ko build --bare --sbom none --tags "$(params.tags)" ./cmd/lazygate

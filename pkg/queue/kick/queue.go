@@ -1,6 +1,6 @@
 package kick
 
-import "github.com/kasefuchs/lazygate/pkg/queue"
+import "codeberg.org/kasefuchs/lazygate/pkg/queue"
 
 var _ queue.Queue = (*Queue)(nil)
 

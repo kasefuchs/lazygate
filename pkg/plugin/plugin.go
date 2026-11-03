@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"math"
 
+	"codeberg.org/kasefuchs/lazygate/pkg/provider"
+	"codeberg.org/kasefuchs/lazygate/pkg/queue"
+	"codeberg.org/kasefuchs/lazygate/pkg/registry"
+	"codeberg.org/kasefuchs/lazygate/pkg/scheduler"
+	"codeberg.org/kasefuchs/lazygate/pkg/utils"
 	"github.com/go-logr/logr"
-	"github.com/kasefuchs/lazygate/pkg/provider"
-	"github.com/kasefuchs/lazygate/pkg/queue"
-	"github.com/kasefuchs/lazygate/pkg/registry"
-	"github.com/kasefuchs/lazygate/pkg/scheduler"
-	"github.com/kasefuchs/lazygate/pkg/utils"
 	"github.com/robinbraemer/event"
 	"go.minekube.com/gate/pkg/edition/java/proxy"
 )

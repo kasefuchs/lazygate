@@ -3,7 +3,7 @@ package provider
 import (
 	"time"
 
-	"github.com/kasefuchs/lazygate/pkg/utils"
+	"codeberg.org/kasefuchs/lazygate/pkg/utils"
 	"github.com/traefik/paerser/types"
 )
 
