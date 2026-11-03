@@ -5,7 +5,7 @@ go 1.26.4
 require (
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/go-logr/logr v1.4.4
-	github.com/go-playground/validator/v10 v10.30.1
+	github.com/go-playground/validator/v10 v10.30.6
 	github.com/hashicorp/nomad/api v0.0.0-20251121200041-ed062641bb2c
 	github.com/pufferpanel/pufferpanel/v3 v3.0.9
 	github.com/robinbraemer/event v0.1.1
@@ -48,15 +48,15 @@ require (
 	github.com/francoispqt/gojay v1.2.13 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/fxamacker/cbor/v2 v2.9.0 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.13 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.16 // indirect
 	github.com/gammazero/deque v1.1.0 // indirect
 	github.com/gin-contrib/sse v1.1.0 // indirect
 	github.com/gin-gonic/gin v1.12.0 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
-	github.com/go-playground/locales v0.14.1 // indirect
-	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/go-playground/locales v0.14.2 // indirect
+	github.com/go-playground/universal-translator v0.18.2 // indirect
 	github.com/go-viper/mapstructure/v2 v2.5.0 // indirect
 	github.com/go-webauthn/webauthn v0.16.1 // indirect
 	github.com/go-webauthn/x v0.2.2 // indirect
@@ -86,7 +86,7 @@ require (
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
 	github.com/knadh/koanf/providers/file v1.2.0 // indirect
-	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/leodido/go-urn v1.5.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
 	github.com/lufia/plan9stats v0.0.0-20251013123823-9fd1530e3ec3 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -156,15 +156,15 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
 	golang.org/x/arch v0.25.0 // indirect
-	golang.org/x/crypto v0.49.0 // indirect
+	golang.org/x/crypto v0.58.0 // indirect
 	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90 // indirect
-	golang.org/x/mod v0.34.0 // indirect
-	golang.org/x/net v0.52.0 // indirect
-	golang.org/x/sync v0.20.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
-	golang.org/x/text v0.35.0 // indirect
+	golang.org/x/mod v0.41.0 // indirect
+	golang.org/x/net v0.60.0 // indirect
+	golang.org/x/sync v0.24.0 // indirect
+	golang.org/x/sys v0.49.0 // indirect
+	golang.org/x/text v0.43.0 // indirect
 	golang.org/x/time v0.15.0 // indirect
-	golang.org/x/tools v0.43.0 // indirect
+	golang.org/x/tools v0.51.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260319201613-d00831a3d3e7 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260319201613-d00831a3d3e7 // indirect
 	google.golang.org/grpc v1.79.3 // indirect
