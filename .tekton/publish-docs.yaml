@@ -63,7 +63,7 @@ spec:
                 set -eu
                 zensical build
             - name: publish-pages
-              image: jfxs/wrangler:4.73
+              image: jfxs/wrangler:4.156
               workingDir: $(workspaces.source.path)/docs/build
               env:
                 - name: CLOUDFLARE_ACCOUNT_ID
