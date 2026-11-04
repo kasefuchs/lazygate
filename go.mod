@@ -12,7 +12,7 @@ require (
 	github.com/traefik/paerser v0.2.3
 	go.minekube.com/common v0.3.0
 	go.minekube.com/gate v0.58.1
-	mvdan.cc/gofumpt v0.9.2
+	mvdan.cc/gofumpt v0.12.0
 )
 
 require (
